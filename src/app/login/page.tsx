@@ -1,0 +1,160 @@
+'use client'
+
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+import {
+    Box,
+    Button,
+    Card,
+    Container,
+    Flex,
+    Text,
+    Heading,
+    Separator,
+    Link
+} from "@radix-ui/themes";
+import { gqlClient } from '@/services/graphql';
+import { LOGIN_USER } from '@/lib/gql/queries';
+import { User } from '../../../generated/prisma';
+
+
+const LoginPage = () => {
+    const [userCred, setUserCred] = useState("");
+    const [password, setPassword] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<{ message?: string }>({});
+    const router = useRouter();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError({});
+        setIsLoading(true);
+
+        try{
+            const data : {
+                loginUser : boolean
+            } = await gqlClient.request(LOGIN_USER, {userCred: userCred, password: password});
+            if(data.loginUser){
+                alert("Logged In Successfully");
+                window.location.href = "/"
+            }
+            else{
+                setError({message: "Invalid Credentials"});
+            }
+
+        }
+        catch(error){
+            console.log(error);
+            setError({message: "Something went wrong"});
+        }
+        finally{
+            setIsLoading(false);
+        }
+
+    };
+
+    return (
+        <Box
+            className="min-h-screen flex items-center justify-center py-8 px-4 sm:p-6"
+            style={{ background: "var(--background)" }}
+        >
+            <Container size="1" className="w-full max-w-md mx-auto">
+
+                <Card size="4" className="relative z-10">
+                    <Flex direction="column" gap="4 sm:gap-6">
+                        <Box className="text-center mb-10">
+                            <Heading
+                                size={{ initial: "8", sm: "6" }}
+                                className="mb-7"
+                            >
+                                Welcome Back
+                            </Heading>
+                        </Box>
+
+                        <form onSubmit={handleSubmit}>
+                            <Flex direction="column" gap="4">
+                                {error?.message && (
+                                    <Box
+                                        className="rounded-md p-3"
+                                        style={{
+                                            background: "rgba(255,0,0,0.1)",
+                                            border: "1px solid rgba(255,0,0,0.3)",
+                                        }}
+                                    >
+                                        <Text size="2">
+                                            {error?.message}
+                                        </Text>
+                                    </Box>
+                                )}
+
+                                <Box style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                                    <Text
+                                        as="label"
+                                        size="2"
+                                        weight="medium"
+                                        className="mb-4 block"
+                                    >
+                                        Email Address or Username
+                                    </Text>
+
+                                    <input
+                                        type="text"
+                                        placeholder="Enter your email or username"
+                                        value={userCred}
+                                        onChange={(e) => setUserCred(e.target.value)}
+                                        className=" w-full pl-4 pr-4 py-3 border rounded-lg"
+                                        required
+                                    />
+                                </Box>
+
+
+                                <Box style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                                    <Text
+                                        as="label"
+                                        size="2"
+                                        weight="medium"
+                                        className="mb-2 block"
+                                    >
+                                        Password
+                                    </Text>
+
+                                    <input
+                                        type="password"
+                                        placeholder="Enter your password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className=" w-full pl-4 pr-4 py-3 border rounded-lg"
+                                        required
+                                    />
+
+                                </Box>
+
+                                <button
+                                    type="submit"
+                                    className="my-4 p-3 bg-blue-600 cursor-pointer rounded-md"
+                                    // disabled = {isLoading}
+                                >
+                                    {isLoading ? 'Logging in...' : 'Log In'}
+                                </button>
+                            </Flex>
+                        </form>
+
+                        <Box className="text-center">
+                            <Text size="2">
+                                Don't have an account?{' '}
+                                <Link
+                                    href="/signup"
+                                    className="font-medium hover:opacity-80 transition-colors"
+                                >
+                                    Sign up here
+                                </Link>
+                            </Text>
+                        </Box>
+                    </Flex>
+                </Card>
+            </Container>
+        </Box>
+    );
+};
+
+export default LoginPage;
