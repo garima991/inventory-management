@@ -3,23 +3,26 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { gqlClient } from "@/services/graphql";
-import { GET_PRODUCT_BY_ID } from "@/lib/gql/queries";
-import { Product } from "../../../../generated/prisma";
+import { GET_PRODUCT_BY_ID, GET_SALES_BY_PRODUCT } from "@/lib/gql/queries";
+import { Product, Sale } from "../../../../generated/prisma";
 import { Box, Card, Flex, Text, Button } from "@radix-ui/themes";
 import AddSaleButton from "@/components/AddSaleButton";
 import ProductSaleChart from "@/components/ProductSaleChart";
+import { aggregateSales } from "@/lib/utils"; 
+import * as Select from "@radix-ui/react-select";
+import { ChevronDownIcon, ChevronUpIcon, CheckIcon } from "@radix-ui/react-icons";
 
 const ProductDetailPage = () => {
-
   const params = useParams();
   const productId = params?.id as string | undefined;
 
   const [product, setProduct] = useState<Product | null>(null);
+  const [sales, setSales] = useState<Sale[]>([]);
+  const [groupBy, setGroupBy] = useState<"day" | "month" | "year">("month");
 
-  
+  // Fetch product
   useEffect(() => {
     if (!productId) return;
-
     const fetchProduct = async () => {
       try {
         const { getProductById } = await gqlClient.request<{ getProductById: Product }>(
@@ -31,63 +34,66 @@ const ProductDetailPage = () => {
         console.error("Error fetching product:", err);
       }
     };
-
     fetchProduct();
   }, [productId]);
 
-  const chartData = useMemo(() => {
-    if (!product?.sales) return [];
-
-    const salesByDate: Record<string, number> = {};
-
-    for (const sale of product.sales) {
-      const d = new Date(sale.createdAt as any);
-      if (isNaN(d.getTime())) continue;
-
-      const key = d.toISOString().split("T")[0]; // yyyy-mm-dd
-      salesByDate[key] = (salesByDate[key] || 0) + Number(sale.quantity || 0);
+  // Fetch sales
+  const fetchSales = async () => {
+    if (!productId) return;
+    try {
+      const { getSalesByProduct } = await gqlClient.request<{ getSalesByProduct: Sale[] }>(
+        GET_SALES_BY_PRODUCT,
+        { productId }
+      );
+      setSales(getSalesByProduct);
+    } catch (err) {
+      console.log("Error fetching sales:", err);
     }
+  };
 
-    return Object.entries(salesByDate)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([date, quantity]) => ({
-        date: new Date(date).toLocaleDateString("en-IN", {
-          day: "2-digit",
-          month: "short",
-          timeZone: "Asia/Kolkata",
-        }),
-        quantity,
-      }));
-  }, [product]);
+  useEffect(() => {
+    fetchSales();
+  }, [productId]);
 
+  // Compute chart data
+  const chartData = useMemo(() => {
+    return aggregateSales(
+      sales.map((sale) => ({
+        createdAt: String(sale.createdAt),
+        quantity: sale.quantity,
+      })),
+      groupBy
+    ).map(({ label, quantity }) => ({
+      date: label,
+      quantity,
+    }));
+  }, [sales, groupBy]);
 
   if (!product) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-gray-500">
+      <div className="flex items-center justify-center min-h-screen bg-slate-950 text-slate-400">
         Loading product details...
       </div>
     );
   }
 
-
   const handleOptimisticSale = (productId: string, quantity: number, tempSaleId: string) => {
+    const tempSale = {
+      id: tempSaleId as any,
+      productId,
+      quantity: quantity as any,
+      createdAt: new Date().toISOString() as any,
+    } as any;
+
     setProduct((prev) =>
       prev
         ? {
             ...prev,
             stock: Number(prev.stock || 0) - quantity,
-            sales: [
-              {
-                id: tempSaleId as any,
-                productId,
-                quantity: quantity as any,
-                createdAt: new Date().toISOString() as any,
-              } as any,
-              ...(prev.sales || []),
-            ],
           }
         : prev
     );
+    setSales((prev) => [tempSale, ...prev]);
   };
 
   const handleRollbackSale = (productId: string, quantity: number, tempSaleId: string) => {
@@ -96,54 +102,60 @@ const ProductDetailPage = () => {
         ? {
             ...prev,
             stock: Number(prev.stock || 0) + quantity,
-            sales: (prev.sales || []).filter((s) => String(s.id) !== tempSaleId),
           }
         : prev
     );
+    setSales((prev) => prev.filter((s) => String(s.id) !== tempSaleId));
   };
 
   return (
-    <div className="px-6 py-6">
-      {/* product UI same as before */}
-      <div className="mb-6 flex justify-center">
+    <div className="px-6 py-8 min-h-screen">
+      
+      <div className="mb-8 flex justify-center">
         <Card
           size="4"
           style={{ maxWidth: 900, width: "100%" }}
-          className="rounded-xl border border-white/10"
+          className="rounded-2xl border border-slate-800 shadow-lg"
         >
           <Flex gap="6" align="start" direction={{ initial: "column", sm: "row" }}>
-            <Box style={{ flexShrink: 0 }}>
+            
+            <Box className="p-2 rounded-xl shadow-md flex-shrink-0">
               <img
                 src={product.imgUrl}
                 alt={product.title}
-                className="w-64 h-64 object-cover rounded-lg shadow"
+                className="w-64 h-64 object-cover rounded-lg"
               />
             </Box>
 
+            
             <Box>
-              <Text as="div" size="6" weight="bold">
+              <Text as="div" size="7" weight="bold" className="text-slate-100">
                 {product.title}
               </Text>
-              <Text as="div" size="3" className="opacity-70">
+              <Text as="div" size="3" className="text-slate-400 mt-1">
                 Category: {product.category}
               </Text>
               <Text
                 as="div"
-                size="5"
+                size="6"
                 weight="bold"
-                className="mt-2 bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent"
+                className="mt-2 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent"
               >
                 ${product.price.toFixed(2)}
               </Text>
 
-              <Text as="p" size="3" className="mt-4 opacity-90">
+              <Text as="p" size="3" className="mt-4 text-slate-300 leading-relaxed">
                 {product.description}
               </Text>
 
               <Text
                 as="div"
                 size="2"
-                className={`mt-4 ${product.stock > 0 ? "text-foreground/70" : "text-red-600"}`}
+                className={`mt-4 inline-block rounded px-2 py-1 text-xs font-medium ${
+                  product.stock > 0
+                    ? "bg-emerald-500/20 text-emerald-400"
+                    : "bg-red-500/20 text-red-400"
+                }`}
               >
                 {product.stock > 0
                   ? `${product.stock} in stock`
@@ -168,11 +180,42 @@ const ProductDetailPage = () => {
         </Card>
       </div>
 
+      
       <div className="max-w-5xl mx-auto">
-        <Card className="rounded-xl border border-white/10">
-          <div className="h-80">
-            <ProductSaleChart data={chartData} />
-          </div>
+        <Card className="rounded-2xl border border-slate-800 p-6 shadow-lg">
+          <Flex justify="between" align="center" className="mb-4">
+           
+            <Select.Root value={groupBy} onValueChange={(val) => setGroupBy(val as any)}>
+              <Select.Trigger
+                className="inline-flex items-center justify-between rounded-md px-3 py-1.5 text-sm  text-slate-100 border border-slate-700 shadow-sm hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              >
+                <Select.Value />
+                <Select.Icon>
+                  <ChevronDownIcon />
+                </Select.Icon>
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Content className="overflow-hidden rounded-md  border border-slate-700 shadow-lg">
+                  <Select.Viewport className="p-1">
+                    {["day", "month", "year"].map((option) => (
+                      <Select.Item
+                        key={option}
+                        value={option}
+                        className="relative flex items-center px-8 py-1.5 text-sm text-slate-100 rounded cursor-pointer hover:bg-slate-700 focus:bg-slate-700 focus:outline-none"
+                      >
+                        <Select.ItemText className="capitalize">{option}</Select.ItemText>
+                        <Select.ItemIndicator className="absolute left-2 inline-flex items-center">
+                          <CheckIcon />
+                        </Select.ItemIndicator>
+                      </Select.Item>
+                    ))}
+                  </Select.Viewport>
+                </Select.Content>
+              </Select.Portal>
+            </Select.Root>
+          </Flex>
+
+          <ProductSaleChart data={chartData} />
         </Card>
       </div>
     </div>

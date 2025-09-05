@@ -45,30 +45,11 @@ export const getAllSales = async () => {
     }
 }
 
-// export const getSaleByCategory = async (_: any, args:{
-//     category: ProductCategory
-// }) => {
-//     try{
-//         const sales = await prismaClient.sale.findMany({
-//             where:{
-//                 product: {
-//                     category: args.category
-//                 }
-//             }
-//         })
-//         return sales;
-//     }
-//     catch(error){
-//         console.log(error);
-//         return [];
-//     }
-// }
 
 export const getSalesByProduct = async (_: any, args: { productId: string }) => {
     try {
         return await prismaClient.sale.findMany({
             where: { productId: args.productId },
-            include: { product: true },
             orderBy: { createdAt: "desc" },
         });
     } catch (error) {

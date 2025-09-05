@@ -22,7 +22,6 @@
 }
 
 body {
-  /* layered, subtle radial gradients for a modern app feel */
   background:
     radial-gradient( 1200px 600px at -10% -20%, rgba(99, 102, 241, 0.12), transparent 60%),
     radial-gradient( 1000px 500px at 120% -10%, rgba(236, 72, 153, 0.10), transparent 60%),
@@ -33,14 +32,12 @@ body {
   transition: background-color 250ms ease, color 250ms ease;
 }
 
-/* minimal glassmorphism utility for headers/containers */
 .glass-panel {
   background: color-mix(in oklab, var(--background) 86%, transparent);
   -webkit-backdrop-filter: saturate(140%) blur(10px);
   backdrop-filter: saturate(140%) blur(10px);
 }
 
-/* nicer scrollbars */
 *::-webkit-scrollbar {
   width: 10px;
   height: 10px;

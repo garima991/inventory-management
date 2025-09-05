@@ -3,7 +3,11 @@ import React, { useState, useEffect } from "react";
 import CreateUserButton from "./CreateUserButton";
 import CreateProductButton from "./CreateProductButton";
 import { gqlClient } from "@/services/graphql";
-import { GET_ALL_USERS, GET_ALL_PRODUCTS, GET_SALES_BY_CATEGORY } from "@/lib/gql/queries";
+import {
+  GET_ALL_USERS,
+  GET_ALL_PRODUCTS,
+  GET_SALES_BY_CATEGORY,
+} from "@/lib/gql/queries";
 import UserCard from "@/components/UserCard";
 import ProductListSection from "@/components/ProductListSection";
 import { User, Product } from "../../generated/prisma";
@@ -27,34 +31,30 @@ const AdminDashboard = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState<boolean>(true);
   const [userSearch, setUserSearch] = useState<string>("");
-  const [categorySales, setCategorySales] = useState<Array<{category: string; totalQuantity: number; totalRevenue: number}>>([]);
+  const [categorySales, setCategorySales] = useState<
+    Array<{ category: string; totalQuantity: number; totalRevenue: number }>
+  >([]);
   const [salesLoading, setSalesLoading] = useState<boolean>(true);
 
   useEffect(() => {
     async function getAllUsers() {
       try {
-        const data: { getAllUsers: [User] } = await gqlClient.request(GET_ALL_USERS);
-        if (data.getAllUsers) {
-          setUsers(data.getAllUsers);
-        } else {
-          console.error("Failed to fetch users");
-        }
+        const data: { getAllUsers: [User] } = await gqlClient.request(
+          GET_ALL_USERS
+        );
+        setUsers(data.getAllUsers || []);
       } catch (error) {
         console.error("Error fetching users:", error);
       } finally {
         setUsersLoading(false);
       }
     }
+
     async function getAllProducts() {
       try {
-        const data: { getAllProducts: [Product] } = await gqlClient.request(
-          GET_ALL_PRODUCTS
-        );
-        if (data.getAllProducts) {
-          setProducts(data.getAllProducts);
-        } else {
-          console.error("Failed to fetch products");
-        }
+        const data: { getAllProducts: [Product] } =
+          await gqlClient.request(GET_ALL_PRODUCTS);
+        setProducts(data.getAllProducts || []);
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
@@ -62,13 +62,15 @@ const AdminDashboard = () => {
       }
     }
 
-    getAllUsers();
-    getAllProducts();
     async function getSalesByCategory() {
       try {
-        const data: { getSalesByCategory: Array<{category: string; totalQuantity: number; totalRevenue: number}> } = await gqlClient.request(
-          GET_SALES_BY_CATEGORY
-        );
+        const data: {
+          getSalesByCategory: Array<{
+            category: string;
+            totalQuantity: number;
+            totalRevenue: number;
+          }>;
+        } = await gqlClient.request(GET_SALES_BY_CATEGORY);
         setCategorySales(data.getSalesByCategory || []);
       } catch (error) {
         console.error("Error fetching sales by category:", error);
@@ -76,33 +78,38 @@ const AdminDashboard = () => {
         setSalesLoading(false);
       }
     }
+
+    getAllUsers();
+    getAllProducts();
     getSalesByCategory();
   }, []);
 
+  // Optimistic handlers
   function handleOptimisticUserCreate(tempUser: User) {
     setUsers((prev) => [tempUser, ...prev]);
   }
-
   function handleConfirmUserCreate(tempId: string, confirmed: User) {
-    setUsers((prev) => prev.map(u => String(u.id) === String(tempId) ? confirmed : u));
+    setUsers((prev) =>
+      prev.map((u) => (String(u.id) === String(tempId) ? confirmed : u))
+    );
   }
-
   function handleRollbackUserCreate(tempId: string) {
-    setUsers((prev) => prev.filter(u => String(u.id) !== String(tempId)));
+    setUsers((prev) => prev.filter((u) => String(u.id) !== String(tempId)));
   }
 
   function handleOptimisticProductCreate(tempProduct: Product) {
     setProducts((prev) => [tempProduct, ...prev]);
   }
-
   function handleConfirmProductCreate(tempId: string, confirmed: Product) {
-    setProducts((prev) => prev.map(p => String(p.id) === String(tempId) ? confirmed : p));
+    setProducts((prev) =>
+      prev.map((p) => (String(p.id) === String(tempId) ? confirmed : p))
+    );
   }
-
   function handleRollbackProductCreate(tempId: string) {
-    setProducts((prev) => prev.filter(p => String(p.id) !== String(tempId)));
+    setProducts((prev) => prev.filter((p) => String(p.id) !== String(tempId)));
   }
 
+  // Dashboard stats
   const lowStockCount = products.filter((p) => p.stock <= 5).length;
   const inventoryValue = products.reduce(
     (acc, p) => acc + (Number(p.price) || 0) * (Number(p.stock) || 0),
@@ -120,6 +127,7 @@ const AdminDashboard = () => {
   const categoryChartData = Object.entries(categoryToStock).map(
     ([name, value]) => ({ name, value })
   );
+
   const pieColors = [
     "#6366f1",
     "#ec4899",
@@ -145,51 +153,31 @@ const AdminDashboard = () => {
   return (
     <div className="flex flex-col gap-6 p-6 min-h-screen">
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        <div className="glass-panel rounded-xl border border-white/10 p-5">
-          <div className="text-sm opacity-70">Total Products</div>
-          <div className="mt-2 text-3xl font-semibold">
-            {productsLoading ? (
-              <span className="inline-block h-8 w-16 rounded bg-white/10 animate-pulse" />
-            ) : (
-              products.length
-            )}
+        {[
+          { label: "Total Products", value: products.length, loading: productsLoading },
+          { label: "Total Users", value: users.length, loading: usersLoading },
+          { label: "Low Stock (≤5)", value: lowStockCount, loading: productsLoading },
+          { label: "Inventory Value", value: `$${inventoryValue.toFixed(2)}`, loading: productsLoading },
+        ].map((stat, idx) => (
+          <div
+            key={idx}
+            className=" rounded-xl p-5 hover:scale-[1.02] transition"
+          >
+            <div className="text-sm opacity-70">{stat.label}</div>
+            <div className="mt-2 text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+              {stat.loading ? (
+                <span className="inline-block h-8 w-20 rounded bg-white/10 animate-pulse" />
+              ) : (
+                stat.value
+              )}
+            </div>
           </div>
-        </div>
-        <div className="glass-panel rounded-xl border border-white/10 p-5">
-          <div className="text-sm opacity-70">Total Users</div>
-          <div className="mt-2 text-3xl font-semibold">
-            {usersLoading ? (
-              <span className="inline-block h-8 w-16 rounded bg-white/10 animate-pulse" />
-            ) : (
-              users.length
-            )}
-          </div>
-        </div>
-        <div className="glass-panel rounded-xl border border-white/10 p-5">
-          <div className="text-sm opacity-70">Low Stock (≤5)</div>
-          <div className="mt-2 text-3xl font-semibold">
-            {productsLoading ? (
-              <span className="inline-block h-8 w-16 rounded bg-white/10 animate-pulse" />
-            ) : (
-              lowStockCount
-            )}
-          </div>
-        </div>
-        <div className="glass-panel rounded-xl border border-white/10 p-5">
-          <div className="text-sm opacity-70">Inventory Value</div>
-          <div className="mt-2 text-3xl font-semibold">
-            {productsLoading ? (
-              <span className="inline-block h-8 w-24 rounded bg-white/10 animate-pulse" />
-            ) : (
-              `$${inventoryValue.toFixed(2)}`
-            )}
-          </div>
-        </div>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-8 w-full shadow-sm p-5 glass-panel rounded-xl border border-white/10">
-          <div className="flex justify-between items-center mb-4">
+        <div className="lg:col-span-8 w-full  rounded-xl border border-white/10 p-5">
+          <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-2">
             <h1 className="text-lg font-semibold">Products</h1>
             <CreateProductButton
               onOptimisticCreate={handleOptimisticProductCreate}
@@ -201,9 +189,9 @@ const AdminDashboard = () => {
         </div>
 
         <div className="lg:col-span-4 space-y-6">
-          <div className="shadow-sm p-5 glass-panel rounded-xl border border-white/10">
+          <div className=" rounded-xl border border-white/10 p-5">
             <div className="flex flex-col gap-3 mb-4">
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
                 <h2 className="text-lg font-semibold">Users</h2>
                 <CreateUserButton
                   onOptimisticCreate={handleOptimisticUserCreate}
@@ -217,14 +205,18 @@ const AdminDashboard = () => {
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
                   placeholder="Search by name, email, username, role..."
-                  className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 outline-none focus:border-white/20 text-sm"
+                  className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm placeholder-gray-400
+                             focus:border-indigo-500/40 focus:ring focus:ring-indigo-500/20 outline-none"
                 />
               </div>
             </div>
             {usersLoading ? (
               <div className="flex flex-col gap-3">
                 {Array.from({ length: 4 }).map((_, idx) => (
-                  <div key={idx} className="h-14 rounded-lg bg-white/10 animate-pulse" />
+                  <div
+                    key={idx}
+                    className="h-14 rounded-lg bg-white/10 animate-pulse"
+                  />
                 ))}
               </div>
             ) : filteredUsers.length > 0 ? (
@@ -238,8 +230,8 @@ const AdminDashboard = () => {
             )}
           </div>
 
-          <div className="shadow-sm p-5 glass-panel rounded-xl border border-white/10">
-            <div className="flex justify-between items-center mb-4">
+          <div className=" rounded-xl border border-white/10 p-5">
+            <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-2">
               <h2 className="text-lg font-semibold">Stock by Category</h2>
             </div>
             <div className="h-72">
@@ -257,19 +249,37 @@ const AdminDashboard = () => {
                       paddingAngle={2}
                     >
                       {categoryChartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={pieColors[index % pieColors.length]}
+                        />
                       ))}
                     </Pie>
-                    <Tooltip />
-                    <Legend />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#0f172a",
+                        borderRadius: "8px",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        color: "#f8fafc",
+                        padding: "8px 12px",
+                      }}
+                      itemStyle={{ color: "#facc15" }}
+                      labelStyle={{ color: "#38bdf8" }}
+                    />
+                    <Legend
+                      wrapperStyle={{
+                        color: "#cbd5e1",
+                        fontSize: "12px",
+                      }}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
               )}
             </div>
           </div>
 
-          <div className="shadow-sm p-5 glass-panel rounded-xl border border-white/10">
-            <div className="flex justify-between items-center mb-4">
+          <div className=" rounded-xl border border-white/10 p-5">
+            <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-2">
               <h2 className="text-lg font-semibold">Sales by Category</h2>
             </div>
             <div className="h-72">
@@ -277,13 +287,46 @@ const AdminDashboard = () => {
                 <div className="h-full w-full rounded-lg bg-white/10 animate-pulse" />
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={categorySales} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.12)" />
-                    <XAxis dataKey="category" stroke="currentColor" tick={{ fill: 'currentColor', opacity: 0.7, fontSize: 12 }} />
-                    <YAxis stroke="currentColor" tick={{ fill: 'currentColor', opacity: 0.7, fontSize: 12 }} />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="totalQuantity" name="Quantity" fill="#6366f1" />
+                  <BarChart
+                    data={categorySales}
+                    margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="rgba(255,255,255,0.12)"
+                    />
+                    <XAxis
+                      dataKey="category"
+                      stroke="#cbd5e1"
+                      tick={{ fill: "#cbd5e1", fontSize: 12 }}
+                    />
+                    <YAxis
+                      stroke="#cbd5e1"
+                      tick={{ fill: "#cbd5e1", fontSize: 12 }}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#0f172a",
+                        borderRadius: "8px",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        color: "#f8fafc",
+                        padding: "8px 12px",
+                      }}
+                      itemStyle={{ color: "#38bdf8" }}
+                      labelStyle={{ color: "#facc15" }}
+                    />
+                    <Legend
+                      wrapperStyle={{
+                        color: "#cbd5e1",
+                        fontSize: "12px",
+                      }}
+                    />
+                    <Bar
+                      dataKey="totalQuantity"
+                      name="Quantity"
+                      fill="#6366f1"
+                      radius={[6, 6, 0, 0]}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               )}

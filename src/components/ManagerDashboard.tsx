@@ -98,13 +98,6 @@ const ManagerDashboard = () => {
     "#14b8a6",
   ];
 
-  function handleOptimisticSale(productId: string, quantity: number) {
-    setProducts((prev) => prev.map(p => String(p.id) === String(productId) ? ({...p, stock: ((Number(p.stock)||0) - quantity) as any }) : p));
-  }
-
-  function handleRollbackSale(productId: string, quantity: number) {
-    setProducts((prev) => prev.map(p => String(p.id) === String(productId) ? ({...p, stock: ((Number(p.stock)||0) + quantity) as any }) : p));
-  }
 
   return (
     <div className="flex flex-col gap-6 p-6 min-h-screen">

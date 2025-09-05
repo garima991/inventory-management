@@ -37,11 +37,6 @@ const UserDropDown = () => {
 
       <DropdownMenu.Content className="bg-[--color-panel-solid] min-w-[150px]">
         <DropdownMenu.Item>Edit profile</DropdownMenu.Item>
-        {/* <Link href="/add-company" passHref>
-          <DropdownMenu.Item asChild>
-            Add Company
-          </DropdownMenu.Item>
-        </Link> */}
         <DropdownMenu.Item>Logout</DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item color="red">Delete</DropdownMenu.Item>

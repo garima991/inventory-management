@@ -86,11 +86,6 @@ export const GET_SALES_BY_PRODUCT = gql`
       id
       quantity
       createdAt
-      product {
-        id
-        title
-        price
-      }
     }
   }
 `;

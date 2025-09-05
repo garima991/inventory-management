@@ -36,7 +36,7 @@ const LoginPage = () => {
             } = await gqlClient.request(LOGIN_USER, {userCred: userCred, password: password});
             if(data.loginUser){
                 alert("Logged In Successfully");
-                window.location.href = "/"
+                window.location.href = "/dashboard"
             }
             else{
                 setError({message: "Invalid Credentials"});
@@ -139,7 +139,7 @@ const LoginPage = () => {
                             </Flex>
                         </form>
 
-                        <Box className="text-center">
+                        {/* <Box className="text-center">
                             <Text size="2">
                                 Don't have an account?{' '}
                                 <Link
@@ -149,7 +149,7 @@ const LoginPage = () => {
                                     Sign up here
                                 </Link>
                             </Text>
-                        </Box>
+                        </Box> */}
                     </Flex>
                 </Card>
             </Container>

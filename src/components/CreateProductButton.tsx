@@ -25,7 +25,7 @@ const CreateProductButton = ({ onOptimisticCreate, onServerConfirm, onErrorRollb
 		const tempId = `temp-${Date.now()}`;
 		try{
 			const tempProduct: Product = {
-				id: tempId as unknown as any,
+				id: tempId as any,
 				title,
 				description,
 				category: category as any,

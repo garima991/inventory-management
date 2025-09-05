@@ -11,9 +11,10 @@ type AddSaleButtonProps = {
     product: Product;
     onOptimisticSale?: (productId: string, quantity: number, tempSaleId: string) => void;
     onRollbackSale?: (productId: string, quantity: number, tempSaleId: string) => void;
+    onSaleSuccess?: () => void;
 }
 
-const AddSaleButton = ({product, onOptimisticSale, onRollbackSale}: AddSaleButtonProps) => {
+const AddSaleButton = ({product, onOptimisticSale, onRollbackSale, onSaleSuccess}: AddSaleButtonProps) => {
 	const [quantity, setQuantity] = useState(1);
 
 	async function handleSale () {
@@ -32,6 +33,7 @@ const AddSaleButton = ({product, onOptimisticSale, onRollbackSale}: AddSaleButto
 			if(data.createSale){
 				alert("Sale Added Successfully");
 				setQuantity(1);
+				onSaleSuccess?.();
 			}
 			else{
 				onRollbackSale?.(product.id, quantity, tempSaleId);
