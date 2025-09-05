@@ -10,7 +10,13 @@ export function aggregateSales(
   const grouped: Record<string, number> = {};
 
   sales.forEach((sale) => {
-    let dateObj: Date = new Date(Number(sale.createdAt));
+    let dateObj: Date;
+    if (typeof sale.createdAt === "string" && isNaN(Number(sale.createdAt))) {
+      dateObj = new Date(sale.createdAt); // Handle ISO date strings
+    }
+    else {
+      dateObj = new Date(Number(sale.createdAt)); // Handle timestamp numbers
+    }
 
     let key: string;
     switch (groupBy) {

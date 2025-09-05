@@ -2,19 +2,18 @@
 
 import { Button, Dialog, Flex, Select, Text, TextField } from '@radix-ui/themes'
 import React, { useState } from 'react'
-import { Product, Sale } from "../../generated/prisma"
+import { Product, Sale } from "../../../generated/prisma"
 import {gqlClient} from "@/services/graphql"
 import {ADD_SALE} from "@/lib/gql/mutation";
 
 
 type AddSaleButtonProps = {
     product: Product;
-    onOptimisticSale?: (productId: string, quantity: number, tempSaleId: string) => void;
-    onRollbackSale?: (productId: string, quantity: number, tempSaleId: string) => void;
-    onSaleSuccess?: () => void;
+    onOptimisticSale?: ( quantity: number, tempSaleId: string) => void;
+    onRollbackSale?: (quantity: number, tempSaleId: string) => void;
 }
 
-const AddSaleButton = ({product, onOptimisticSale, onRollbackSale, onSaleSuccess}: AddSaleButtonProps) => {
+const AddSaleButton = ({product, onOptimisticSale, onRollbackSale}: AddSaleButtonProps) => {
 	const [quantity, setQuantity] = useState(1);
 
 	async function handleSale () {
@@ -22,10 +21,10 @@ const AddSaleButton = ({product, onOptimisticSale, onRollbackSale, onSaleSuccess
             alert("Insufficient stock for this sale");
 			return;
         }
+		const tempSaleId = `temp-sale-${Date.now()}`;
 		try{
 			// optimistic stock decrement + temp sale id
-			const tempSaleId = `temp-sale-${Date.now()}`;
-			onOptimisticSale?.(product.id, quantity, tempSaleId);
+			onOptimisticSale?.(quantity, tempSaleId);
 			const data : {createSale : boolean } = await gqlClient.request(ADD_SALE, {
                 productId: product.id,
 				quantity
@@ -33,16 +32,15 @@ const AddSaleButton = ({product, onOptimisticSale, onRollbackSale, onSaleSuccess
 			if(data.createSale){
 				alert("Sale Added Successfully");
 				setQuantity(1);
-				onSaleSuccess?.();
 			}
 			else{
-				onRollbackSale?.(product.id, quantity, tempSaleId);
+				onRollbackSale?.(quantity, tempSaleId);
 				alert("something went wrong");
 			}
 		}
 		catch(error){
 			const tempSaleId = `temp-sale-${Date.now()}`;
-			onRollbackSale?.(product.id, quantity, tempSaleId);
+			onRollbackSale?.(quantity, tempSaleId);
 			console.log(error);
 		}
 	}

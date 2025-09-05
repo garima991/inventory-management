@@ -1,10 +1,18 @@
 import { gql } from "graphql-request"
 
 export const LOGIN_USER = gql`
-query Query($userCred: String!, $password: String!) {
-  loginUser(userCred: $userCred, password: $password)
+  query LoginUser($userCred: String!, $password: String!) {
+  loginUser(userCred: $userCred, password: $password) {
+    id
+    name
+    username
+    email
+    role
+    avatar
+  }
 }
-` 
+`;
+
 
 export const GET_ALL_USERS = gql`
 query GetAllUsers {

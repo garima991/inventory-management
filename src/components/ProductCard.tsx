@@ -37,15 +37,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
         <Box p="3" className="min-w-0">
           <Flex align="center" gap="3" wrap="wrap">
-            <Avatar
-              size="4"
-              src={product.imgUrl}
-              radius="small"
-              fallback={titleInitial}
-              className="ring-1 ring-white/10 group-hover:ring-indigo-400/40 transition"
-            />
             <Box className="min-w-0 flex-1">
-              <Flex align="center" gap="2" wrap="wrap">
+              <Flex align="stretch" gap="2" wrap="wrap">
                 <Text as="div" size="3" weight="bold" className="truncate">
                   {product.title}
                 </Text>

@@ -37,21 +37,8 @@ export default function Header() {
             </Text>
           </Link>
 
-          {/* Navigation */}
           <Flex gap="5" align="center" className="flex-wrap justify-center">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`px-3 py-1 rounded-lg text-sm transition-all duration-200 ${
-                  pathname === link.href
-                    ? "text-indigo-400 font-medium bg-white/5"
-                    : "opacity-80 hover:opacity-100 hover:bg-white/5"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+            
             <UserDropDown />
           </Flex>
         </Flex>

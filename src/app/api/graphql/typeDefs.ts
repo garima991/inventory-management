@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 
 export const typeDefs = gql`
   type Query {
-    loginUser(userCred: String!, password: String!) : Boolean!
+    loginUser(userCred: String!, password: String!) : User!
     currentUser: User
     getAllUsers: [User]
     getAllProducts: [Product]

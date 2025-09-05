@@ -4,7 +4,7 @@ import { Button, Dialog, Flex, Select, Text, TextField } from '@radix-ui/themes'
 import React, { useState } from 'react'
 import {gqlClient} from "@/services/graphql"
 import {CREATE_USER} from "@/lib/gql/mutation"
-import { User } from "../../generated/prisma"
+import { User } from "../../../generated/prisma"
 
 
 type CreateUserButtonProps = {

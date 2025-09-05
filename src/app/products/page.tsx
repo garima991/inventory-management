@@ -1,6 +1,6 @@
 import React from "react";
-import CreateProductButton from "@/components/CreateProductButton";
-import ProductListSection from "@/components/ProductListSection";
+import CreateProductButton from "@/components/button/CreateProductButton";
+import ProductsSection from "@/components/ProductsSection";
 
 export default function ProductsPage() {
   return (
@@ -13,7 +13,7 @@ export default function ProductsPage() {
         <CreateProductButton />
       </div>
 
-      <ProductListSection />
+      <ProductsSection />
     </div>
   );
 }

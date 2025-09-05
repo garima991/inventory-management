@@ -5,7 +5,7 @@ import { RoleType } from "../../generated/prisma";
 
 
 type UserWithoutPassword = {
-     name: string;
+    name: string;
     id: string;
     email: string;
     username: string;

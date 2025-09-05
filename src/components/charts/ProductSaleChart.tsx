@@ -18,14 +18,10 @@ interface ProductSaleChartProps {
 export default function ProductSaleChart({ data }: ProductSaleChartProps) {
   return (
     <Card
-      className="rounded-xl border border-white/10 p-4"
+      className="rounded-xl border border-white/40 p-4"
       size="3"
     >
-      <Flex justify="between" align="center" className="mb-4">
-        <Text size="4" weight="bold" className="text-slate-100">
-          Sales Overview
-        </Text>
-      </Flex>
+     
 
       <div className="w-full h-[450px]">
         <ResponsiveContainer width="100%" height="100%">

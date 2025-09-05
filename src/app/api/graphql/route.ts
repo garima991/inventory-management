@@ -5,7 +5,7 @@ import { typeDefs } from "./typeDefs";
 import { createUser, loginUser, updateUserProfile, updateUserRole, getAllUsers } from "./resolvers/user";
 import {createProduct, getAllProducts, getProductById} from "./resolvers/product"
 import {createSale, getAllSales, getSalesByCategory, getSalesByProduct} from "./resolvers/sale";
-import  getUserFromCookies  from "@/lib/helper";
+import  getUserFromCookies  from "@/lib/utils/dal";
 
 
 const resolvers = {

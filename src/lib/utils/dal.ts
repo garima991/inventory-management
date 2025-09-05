@@ -1,6 +1,6 @@
 import { prismaClient } from "@/services/prisma";
 import { cookies } from "next/headers";
-import { verifyToken } from "./auth";
+import { verifyToken } from "../auth";
 
 export default async function getUserFromCookies() {
     const cookieStore = await cookies();

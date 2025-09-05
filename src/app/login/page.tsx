@@ -15,8 +15,6 @@ import {
 } from "@radix-ui/themes";
 import { gqlClient } from '@/services/graphql';
 import { LOGIN_USER } from '@/lib/gql/queries';
-import { User } from '../../../generated/prisma';
-
 
 const LoginPage = () => {
     const [userCred, setUserCred] = useState("");
@@ -31,17 +29,17 @@ const LoginPage = () => {
         setIsLoading(true);
 
         try{
-            const data : {
-                loginUser : boolean
-            } = await gqlClient.request(LOGIN_USER, {userCred: userCred, password: password});
-            if(data.loginUser){
-                alert("Logged In Successfully");
-                window.location.href = "/dashboard"
-            }
-            else{
-                setError({message: "Invalid Credentials"});
-            }
+          const data: { loginUser: { role : string } } =
+            await gqlClient.request(LOGIN_USER, { userCred, password });
 
+        if (data.loginUser) {
+            alert("Logged In Successfully");
+
+            const role = data.loginUser.role.toLowerCase();
+            router.push(`/${role}/dashboard`);
+        } else {
+            setError({ message: "Invalid Credentials" });
+        }
         }
         catch(error){
             console.log(error);
@@ -138,18 +136,6 @@ const LoginPage = () => {
                                 </button>
                             </Flex>
                         </form>
-
-                        {/* <Box className="text-center">
-                            <Text size="2">
-                                Don't have an account?{' '}
-                                <Link
-                                    href="/signup"
-                                    className="font-medium hover:opacity-80 transition-colors"
-                                >
-                                    Sign up here
-                                </Link>
-                            </Text>
-                        </Box> */}
                     </Flex>
                 </Card>
             </Container>

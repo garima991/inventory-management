@@ -2,43 +2,51 @@ import { prismaClient } from "@/services/prisma";
 import { RoleType } from "../../../../../generated/prisma";
 import { generateToken } from "@/lib/auth";
 import { cookies } from "next/headers";
-import getUserFromCookies from "@/lib/helper";
+import getUserFromCookies from "@/lib/utils/dal";
 
-export const loginUser = async (_: any, args: {
-    userCred: string, password: string
-}) => {
+export const loginUser = async (_: any, args: { userCred: string; password: string }) => {
+  try {
+    const cookieStore = await cookies();
+    const { userCred, password } = args;
 
-    try {
-        const cookieStore = await cookies();
-        const { userCred, password } = args;
-        const user = await prismaClient.user.findFirst({
-            where: {
-                OR: [{ email: userCred }, { username: userCred }]
-            }
-        })
+    const user = await prismaClient.user.findFirst({
+      where: {
+        OR: [{ email: userCred }, { username: userCred }]
+      }
+    });
 
-        if(!user){
-            return false;
-        }
-        if(user.password == password){
-            const token = await generateToken({
-                id: user.id,
-                email: user.email,
-                role: user.role,
-                username: user.username
-            });
-            cookieStore.set("token" , token);
-            return true;
-        }
-        else{
-            return false;
-        }
+    if (!user) {
+      throw new Error("User not found"); 
     }
-    catch(error){
-        console.log(error);
-        return false;
+
+    if (user.password !== password) {
+      throw new Error("Invalid password"); 
     }
-}
+
+    const token = await generateToken({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      username: user.username
+    });
+
+    cookieStore.set("token", token);
+
+
+    return {
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      avatar: user.avatar || null
+    };
+  } catch (error) {
+    console.error(error);
+    throw error; 
+  }
+};
+
 
 
 
