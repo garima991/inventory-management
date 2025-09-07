@@ -1,28 +1,28 @@
+import { hashPassword } from "@/lib/auth";
 import { PrismaClient, ProductCategory } from "../generated/prisma";
 
 const prisma = new PrismaClient();
 
 type SeedProduct = {
-	title: string;
-	description: string;
-	category: ProductCategory;
-	price: number;
-	imgUrl: string;
-	minInitialStock?: number;
-	maxInitialStock?: number;
+  title: string;
+  description: string;
+  category: ProductCategory;
+  price: number;
+  imgUrl: string;
 };
 
 function randomInt(min: number, max: number): number {
-	return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function randomDateInLastDays(days: number): Date {
-	const now = new Date();
-	const past = new Date(now);
-	past.setDate(now.getDate() - randomInt(0, days));
-	past.setHours(randomInt(0, 23), randomInt(0, 59), randomInt(0, 59), randomInt(0, 999));
-	return past;
+  const now = new Date();
+  const past = new Date(now);
+  past.setDate(now.getDate() - randomInt(0, days));
+  past.setHours(randomInt(0, 23), randomInt(0, 59), randomInt(0, 59), randomInt(0, 999));
+  return past;
 }
+
 
 const productCatalog: SeedProduct[] = [
 	// ELECTRONICS
@@ -70,58 +70,108 @@ const productCatalog: SeedProduct[] = [
 ];
 
 async function seed() {
-	console.log("Seeding database with products and sales...");
+  console.log("Seeding multi-tenant database with users, products, and sales...");
 
-	// Clean slate for idempotent seeding in demos
-	await prisma.sale.deleteMany();
-	await prisma.product.deleteMany();
+  // Clean existing data
+  await prisma.sale.deleteMany();
+  await prisma.product.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.tenant.deleteMany();
 
-	const createdProducts = [] as { id: string; price: number; category: ProductCategory }[];
+  // Create tenants
+  const tenantA = await prisma.tenant.create({ data: { name: "Tech Corp" } });
+  const tenantB = await prisma.tenant.create({ data: { name: "Fashion Inc" } });
+  const tenants = [tenantA, tenantB];
 
-	for (const p of productCatalog) {
-		const initialStock = randomInt(p.minInitialStock ?? 120, p.maxInitialStock ?? 600);
-		const numberOfSales = randomInt(40, 220);
-		const salesQuantities: number[] = Array.from({ length: numberOfSales }, () => randomInt(1, 5));
-		const totalSold = salesQuantities.reduce((a, b) => a + b, 0);
-		const finalStock = Math.max(0, initialStock - totalSold);
+  for (const tenant of tenants) {
+    // Create Admin user
+    const hashedPassword = await hashPassword(`admin_${tenant.name.toLowerCase()}`);
+    await prisma.user.create({
+      data: {
+        name: `${tenant.name} Admin`,
+        email: `admin@${tenant.name.replace(/\s+/g, "").toLowerCase()}.com`,
+        username: `admin_${tenant.name.replace(/\s+/g, "").toLowerCase()}`,
+        password: hashedPassword,
+        role: "ADMIN",
+        tenantId: tenant.id,
+      },
+    });
 
-		const product = await prisma.product.create({
-			data: {
-				title: p.title,
-				description: p.description,
-				category: p.category,
-				price: p.price,
-				stock: finalStock,
-				imgUrl: p.imgUrl,
-			},
-		});
+    // Create Managers
+    for (let i = 1; i <= 2; i++) {
+      const hashedPassword = await hashPassword(`manager${i}_${tenant.name.toLowerCase()}`);
 
-		createdProducts.push({ id: product.id, price: p.price, category: p.category });
+      await prisma.user.create({
+        data: {
+          name: `${tenant.name} Manager ${i}`,
+          email: `manager${i}@${tenant.name.replace(/\s+/g, "").toLowerCase()}.com`,
+          username: `manager${i}_${tenant.name.replace(/\s+/g, "").toLowerCase()}`,
+          password: hashedPassword,
+          role: "MANAGER",
+          tenantId: tenant.id,
+        },
+      });
+    }
 
-		const salesData = salesQuantities.map((q) => ({
-			productId: product.id,
-			quantity: q,
-			createdAt: randomDateInLastDays(210), // ~7 months
-		}));
+    // Create Staff
+    for (let i = 1; i <= 3; i++) {
 
-		// Bulk insert for speed
-		if (salesData.length > 0) {
-			await prisma.sale.createMany({ data: salesData });
-		}
-	}
+      const hashedPassword = await hashPassword(`staff${i}_${tenant.name.toLowerCase()}`);
 
-	console.log(`Created ${createdProducts.length} products with synthetic sales.`);
+      await prisma.user.create({
+        data: {
+          name: `${tenant.name} Staff ${i}`,
+          email: `staff${i}@${tenant.name.replace(/\s+/g, "").toLowerCase()}.com`,
+          username: `staff${i}_${tenant.name.replace(/\s+/g, "").toLowerCase()}`,
+          password: hashedPassword,
+          role: "STAFF",
+          tenantId: tenant.id,
+        },
+      });
+    }
+
+    // Create Products for this tenant
+    for (const p of productCatalog) {
+      const initialStock = randomInt(120, 600);
+      const numberOfSales = randomInt(40, 220);
+      const salesQuantities: number[] = Array.from({ length: numberOfSales }, () => randomInt(1, 5));
+      const totalSold = salesQuantities.reduce((a, b) => a + b, 0);
+      const finalStock = Math.max(0, initialStock - totalSold);
+
+      const product = await prisma.product.create({
+        data: {
+          title: p.title,
+          description: p.description,
+          category: p.category,
+          price: p.price,
+          stock: finalStock,
+          imgUrl: p.imgUrl,
+          tenantId: tenant.id,
+        },
+      });
+
+      // Create sales for this product
+      const salesData = salesQuantities.map((q) => ({
+        productId: product.id,
+        quantity: q,
+        createdAt: randomDateInLastDays(210),
+        tenantId: tenant.id,
+      }));
+
+      if (salesData.length > 0) {
+        await prisma.sale.createMany({ data: salesData });
+      }
+    }
+
+    console.log(`Seeded tenant: ${tenant.name} with admin, managers, staff, products, and sales.`);
+  }
+
+  console.log("Multi-tenant seed completed!");
 }
 
 seed()
-	.then(async () => {
-		await prisma.$disconnect();
-		console.log("Seed completed.");
-	})
-	.catch(async (e) => {
-		console.error(e);
-		await prisma.$disconnect();
-		process.exit(1);
-	});
-
+  .catch((e) => console.error(e))
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
 

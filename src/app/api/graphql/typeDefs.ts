@@ -2,42 +2,42 @@ import gql from "graphql-tag";
 
 export const typeDefs = gql`
   type Query {
-    loginUser(userCred: String!, password: String!) : User!
+    loginUser(userCred: String!, password: String!): Boolean!
     currentUser: User
-    getAllUsers: [User]
-    getAllProducts: [Product]
+    getAllUsers: [User]!
+    getAllProducts: [Product]!
     getProductById(id: String!): Product
-    getAllSales: [Sale]
+    getAllSales: [Sale]!
     getSalesByCategory: [CategorySales!]
-    getSalesByProduct(productId: String!): [Sale]
+    getSalesByProduct(productId: String!): [Sale]!
   }
-  
-  type Mutation{
-    createUser(name: String!, username:String!, email:String!, password:String!, role:String!) : User
-    updateUserRole(id: String!, role: String!) : Boolean!
-    updateUserProfile(id: String!, name: String, username: String, email: String, avatar: String) : User
-    createProduct(title: String!, description:String!, category:String!, price:Float!, stock:Int!, imgUrl: String!) : Product
+  type Mutation {
+    createTenant(orgName: String!, adminName: String!, adminUsername: String!, adminEmail: String!, adminPassword: String!): Tenant!
+    createUser(name: String!, username: String!, email: String!, password: String!, role: String!): User
+    updateUserRole(id: String!, role: String!): Boolean!
+    updateUserProfile(id: String!, name: String, username: String, email: String, avatar: String): User
+    createProduct(title: String!, description: String!, category: String!, price: Float!, stock: Int!, imgUrl: String!): Product
     createSale(productId: String!, quantity: Int!): Boolean!
   }
 
-  type User{
+  type Tenant {
+    id: String!
+    name: String!
+    createdAt: String!
+    # admin: User!
+  }
+
+  type User {
     id: String!
     name: String!
     username: String!
     email: String!
     role: String!
     avatar: String
+    tenantId: String!
   }
 
-  
-  type Sales{
-    id: String!
-    product: Product!
-    quantity: Int!
-    createdAt: String!
-  }
-
-  type Product{
+  type Product {
     id: String!
     title: String!
     description: String
@@ -46,6 +46,7 @@ export const typeDefs = gql`
     stock: Int
     imgUrl: String
     sales: [Sale]
+    tenantId: String!
   }
 
   type Sale {
@@ -54,6 +55,7 @@ export const typeDefs = gql`
     quantity: Int!
     createdAt: String!
     product: Product
+    tenantId: String!
   }
 
   type CategorySales {
@@ -61,5 +63,4 @@ export const typeDefs = gql`
     totalQuantity: Int!
     totalRevenue: Float!
   }
-
 `;

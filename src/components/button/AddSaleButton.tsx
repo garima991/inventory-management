@@ -30,12 +30,12 @@ const AddSaleButton = ({product, onOptimisticSale, onRollbackSale}: AddSaleButto
 				quantity
 			})
 			if(data.createSale){
-				alert("Sale Added Successfully");
+				// alert("Sale Added Successfully");
 				setQuantity(1);
 			}
 			else{
 				onRollbackSale?.(quantity, tempSaleId);
-				alert("something went wrong");
+				// alert("something went wrong");
 			}
 		}
 		catch(error){
