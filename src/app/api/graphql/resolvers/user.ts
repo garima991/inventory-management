@@ -1,150 +1,123 @@
 import { prismaClient } from "@/services/prisma";
 import { RoleType } from "../../../../../generated/prisma";
-import { generateToken } from "@/lib/auth";
+import { generateToken, hashPassword } from "@/lib/auth";
 import { cookies } from "next/headers";
-import getUserFromCookies from "@/lib/utils/dal";
 
-export const loginUser = async (_: any, args: { userCred: string; password: string }) => {
+export const loginUser = async (
+  _: any,
+  args: { userCred: string; password: string }
+) => {
+  const { userCred, password } = args;
+  const cookieStore = await cookies();
+
   try {
-    const cookieStore = await cookies();
-    const { userCred, password } = args;
-
     const user = await prismaClient.user.findFirst({
       where: {
-        OR: [{ email: userCred }, { username: userCred }]
-      }
+        OR: [{ email: userCred }, { username: userCred }],
+      },
     });
 
-    if (!user) {
-      throw new Error("User not found"); 
-    }
-
-    if (user.password !== password) {
-      throw new Error("Invalid password"); 
-    }
+    if (!user) throw new Error("User not found");
+    const hashedPassword = await hashPassword(password) 
+    if (user.password !== hashedPassword) throw new Error("Invalid password");
 
     const token = await generateToken({
       id: user.id,
       email: user.email,
       role: user.role,
-      username: user.username
+      username: user.username,
+      tenantId: user.tenantId,
     });
 
     cookieStore.set("token", token);
 
-
-    return {
-      id: user.id,
-      name: user.name,
-      username: user.username,
-      email: user.email,
-      role: user.role,
-      avatar: user.avatar || null
-    };
+    return true;
   } catch (error) {
     console.error(error);
-    throw error; 
+    return false
   }
 };
 
+export const createUser = async (
+  _: any,
+  args: {
+    name: string;
+    username: string;
+    email: string;
+    password: string;
+    role: RoleType;
+  },
+  context: any
+) => {
+  const { user } = context;
+  if (!user || user.role !== "ADMIN") return null;
 
+  const { name, username, email, password, role } = args;
 
+  return await prismaClient.user.create({
+    data: {
+      name,
+      username,
+      email,
+      password,
+      role,
+      tenantId: user.tenantId,
+    },
+  });
+};
 
+export const updateUserRole = async (
+  _: any,
+  args: { id: string; role: RoleType },
+  context: any
+) => {
+  const { user } = context;
+  if (!user || user.role !== "ADMIN") return false;
 
-export const createUser = async (_:any, args : {
-    name: string,
-    username: string,
-    email: string,
-    password: string
-    role: RoleType
-}) => {
-    try{
-        const user = await getUserFromCookies();
-        if(user?.role != "ADMIN"){
-            return null;
-        }
+  const updated = await prismaClient.user.updateMany({
+    where: { id: args.id, tenantId: user.tenantId },
+    data: { role: args.role },
+  });
 
-        const {name, username, email, password, role} = args;
-        const createdUser = await prismaClient.user.create({
-            data: {
-                name,
-                username,
-                email,
-                password,
-                role
-            }
-        })
-        return createdUser;
-    }
-    catch(error){
-        console.log(error);
-        return null;
-    }
-}
+  return updated.count > 0;
+};
 
+export const updateUserProfile = async (
+  _: any,
+  args: {
+    id: string;
+    name?: string;
+    username?: string;
+    email?: string;
+    avatar?: string;
+  },
+  context: any
+) => {
+  const { user } = context;
+  if (!user) return null;
+  if (user.id !== args.id && user.role !== "ADMIN") return false;
 
-export const updateUserRole = async (_: any, args: { id: string, role: RoleType }) => {
-    try {
-        const user = await getUserFromCookies();
-        if (user?.role !== "ADMIN") {
-            return null;
-        }
+  const updated = await prismaClient.user.updateMany({
+    where: { id: args.id, tenantId: user.tenantId },
+    data: {
+      name: args.name,
+      username: args.username,
+      email: args.email,
+      avatar: args.avatar,
+    },
+  });
 
-        const { id, role } = args;
-        const updatedUser = await prismaClient.user.update({
-            where: { id },
-            data: { role}
-        });
-        return updatedUser ? true : false;
-    } catch (error) {
-        console.log(error);
-        return null;
-    }
-}
+  return updated.count > 0 ? { ...args } : null;
+};
 
+export const getAllUsers = async (_: any, __: any, context: any) => {
+  const { user } = context;
+  if (!user || user.role === "STAFF") return [];
 
-export const updateUserProfile = async (_: any, args: { id: string, name?: string, username?: string, email?: string , avatar?: string}) => {
-    try {
-        const user = await getUserFromCookies();
-        if (!user) {
-            return null;
-        }
-        if (user.id !== args.id && user.role !== "ADMIN") {
-            return false;
-        }
-        const { id, name, username, email, avatar } = args;
-        const updatedUser = await prismaClient.user.update({
-            where: { id },
-            data: { name, username, email, avatar }
-        });
-        return updatedUser;
-    } catch (error) {
-        console.log(error);
-        return null;
-    }
-}
-
-
-export const getAllUsers = async () => {
-    try{
-        const currentUser = await getUserFromCookies();
-        if(!currentUser){
-            return [];
-        }
-        if(currentUser.role === "STAFF"){
-            return [];
-        }
-        const users = await prismaClient.user.findMany({
-            where:{
-                role :{
-                    not: "ADMIN"
-                }
-            }
-        })
-        return users;
-    }
-    catch(error){
-        console.log(error);
-        return [];
-    }
-}
+  return await prismaClient.user.findMany({
+    where: {
+      tenantId: user.tenantId,
+      role: { not: "ADMIN" },
+    },
+  });
+};

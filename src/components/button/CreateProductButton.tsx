@@ -2,28 +2,28 @@
 
 import { Button, Dialog, Flex, Select, Text, TextField } from '@radix-ui/themes'
 import React, { useState } from 'react'
-import {gqlClient} from "@/services/graphql"
-import { Product } from "../../generated/prisma"
-import {ADD_PRODUCT} from "@/lib/gql/mutation"
+import { gqlClient } from "@/services/graphql"
+import { Product } from "../../../generated/prisma"
+import { ADD_PRODUCT } from "@/lib/gql/mutation"
 
 
 type CreateProductButtonProps = {
-    onOptimisticCreate?: (tempProduct: Product) => void;
-    onServerConfirm?: (tempId: string, confirmed: Product) => void;
-    onErrorRollback?: (tempId: string) => void;
+	onOptimisticCreate?: (tempProduct: Product) => void;
+	onServerConfirm?: (tempId: string, confirmed: Product) => void;
+	onErrorRollback?: (tempId: string) => void;
 }
 
 const CreateProductButton = ({ onOptimisticCreate, onServerConfirm, onErrorRollback }: CreateProductButtonProps) => {
 	const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [category, setCategory] = useState("OTHERS");
-    const [price, setPrice] = useState(0);
-    const [stock, setStock] = useState(1);
-    const [imgUrl, setImgUrl] = useState("");
+	const [description, setDescription] = useState("");
+	const [category, setCategory] = useState("OTHERS");
+	const [price, setPrice] = useState(0);
+	const [stock, setStock] = useState(1);
+	const [imgUrl, setImgUrl] = useState("");
 
-	async function handleAddProduct () {
+	async function handleAddProduct() {
 		const tempId = `temp-${Date.now()}`;
-		try{
+		try {
 			const tempProduct: Product = {
 				id: tempId as any,
 				title,
@@ -32,28 +32,28 @@ const CreateProductButton = ({ onOptimisticCreate, onServerConfirm, onErrorRollb
 				price: price as any,
 				stock: stock as any,
 				imgUrl,
-				sales: [] as any
+				tenantId: "" as any
 			};
 			onOptimisticCreate?.(tempProduct);
-			const data : {createProduct : Product } = await gqlClient.request(ADD_PRODUCT, {
+			const data: { createProduct: Product } = await gqlClient.request(ADD_PRODUCT, {
 				title, description, category, price, stock, imgUrl
 			})
-			if(data.createProduct){
+			if (data.createProduct) {
 				onServerConfirm?.(tempId, data.createProduct);
-				alert("Product Added Successfully !")
-                setTitle("");
-                setDescription("");
-                setCategory("OTHERS");
-                setPrice(0);
-                setStock(1);
-                setImgUrl("");
+				// alert("Product Added Successfully !")
+				setTitle("");
+				setDescription("");
+				setCategory("OTHERS");
+				setPrice(0);
+				setStock(1);
+				setImgUrl("");
 			}
-			else{
+			else {
 				onErrorRollback?.(tempId);
-				alert("something went wrong");
+				// alert("something went wrong");
 			}
 		}
-		catch(error){
+		catch (error) {
 			onErrorRollback?.(tempId);
 			console.log(error);
 		}
@@ -93,7 +93,7 @@ const CreateProductButton = ({ onOptimisticCreate, onServerConfirm, onErrorRollb
 						/>
 					</label>
 
-                    <label className='flex flex-col flex-1 gap-1 '>
+					<label className='flex flex-col flex-1 gap-1 '>
 						<Text as="div" size="2" weight="bold">
 							Category
 						</Text>
@@ -103,13 +103,13 @@ const CreateProductButton = ({ onOptimisticCreate, onServerConfirm, onErrorRollb
 								<Select.Group>
 									<Select.Item value="ELECTRONICS">Electronics</Select.Item>
 									<Select.Item value="BEAUTY">Beauty</Select.Item>
-                                    <Select.Item value="FOOD">Food</Select.Item>
+									<Select.Item value="FOOD">Food</Select.Item>
 									<Select.Item value="ACCESSORIES">Accessories</Select.Item>
-                                    <Select.Item value="CLOTHING">Clothing</Select.Item>
+									<Select.Item value="CLOTHING">Clothing</Select.Item>
 									<Select.Item value="FURNITURE">Furniture</Select.Item>
-                                    <Select.Item value="DECOR">Decor</Select.Item>
+									<Select.Item value="DECOR">Decor</Select.Item>
 									<Select.Item value="OTHERS">Others</Select.Item>
-                                </Select.Group>
+								</Select.Group>
 							</Select.Content>
 						</Select.Root>
 					</label>
@@ -119,10 +119,13 @@ const CreateProductButton = ({ onOptimisticCreate, onServerConfirm, onErrorRollb
 							Price
 						</Text>
 						<TextField.Root
-                        type = "number"
+							type="number"
 							placeholder="Enter price"
 							value={price}
-							onChange={(e) => setPrice(Number.parseFloat(e.target.value))}
+							onChange={(e) => {
+								setPrice(Number.parseFloat(e.target.value));
+							}}
+
 						/>
 					</label>
 
@@ -133,12 +136,16 @@ const CreateProductButton = ({ onOptimisticCreate, onServerConfirm, onErrorRollb
 						<TextField.Root
 							placeholder="Enter Stock"
 							value={stock}
-							onChange={(e) => setStock(Number.parseInt(e.target.value))}
+							onChange={(e) => {
+								const value = e.target.value;
+								setStock(value === "" ? 0 : Number.parseInt(value));
+							}}
+
 						/>
 					</label>
-                    <label>
+					<label>
 						<Text as="div" size="2" weight="bold">
-						Image
+							Image
 						</Text>
 						<TextField.Root
 							placeholder="Enter Image URL"
@@ -148,7 +155,7 @@ const CreateProductButton = ({ onOptimisticCreate, onServerConfirm, onErrorRollb
 					</label>
 
 
-			
+
 				</Flex>
 
 				<Flex gap="3" mt="4" justify="end">
@@ -158,7 +165,7 @@ const CreateProductButton = ({ onOptimisticCreate, onServerConfirm, onErrorRollb
 						</Button>
 					</Dialog.Close>
 					<Dialog.Close>
-						<Button onClick = {handleAddProduct} color="indigo">Save</Button>
+						<Button onClick={handleAddProduct} color="indigo">Save</Button>
 					</Dialog.Close>
 				</Flex>
 			</Dialog.Content>

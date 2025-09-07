@@ -1,7 +1,10 @@
 import { gql } from "graphql-request"
 
+// ~ ~ ~ ~ ~ ~ ~ ~ ~ USER MUTATIONS ~ ~ ~ ~ ~ ~ ~ ~ ~
+
+// Login user
 export const LOGIN_USER = gql`
-  query LoginUser($userCred: String!, $password: String!) {
+query LoginUser($userCred: String!, $password: String!) {
   loginUser(userCred: $userCred, password: $password) {
     id
     name
@@ -13,7 +16,21 @@ export const LOGIN_USER = gql`
 }
 `;
 
+// Get current logged-in user
+export const GET_CURRENT_USER = gql`
+query GetCurrentUser {
+  currentUser {
+    id
+    name
+    username
+    email
+    role
+    avatar
+  }
+}
+`;
 
+// Get all users (Admin/Manager)
 export const GET_ALL_USERS = gql`
 query GetAllUsers {
   getAllUsers {
@@ -27,6 +44,9 @@ query GetAllUsers {
 }
 `
 
+// ~ ~ ~ ~ ~ ~ ~ ~ ~ PRODUCT QUERIES ~ ~ ~ ~ ~ ~ ~ ~ ~
+
+// Get all products
 export const GET_ALL_PRODUCTS = gql`
 query GetAllProducts {
   getAllProducts {
@@ -41,6 +61,7 @@ query GetAllProducts {
 }
 `
 
+// Get product by ID
 export const GET_PRODUCT_BY_ID = gql`
 query GetProductById($id: String!) {
   getProductById(id: $id) {
@@ -61,6 +82,9 @@ query GetProductById($id: String!) {
 }
 `
 
+// ~ ~ ~ ~ ~ ~ ~ ~ ~ SALES QUERIES ~ ~ ~ ~ ~ ~ ~ ~ ~
+
+// Get all sales
 export const GET_ALL_SALES = gql`
 query GetAllSales {
   getAllSales {
@@ -78,6 +102,7 @@ query GetAllSales {
 }
 `
 
+// Get sales by category
 export const GET_SALES_BY_CATEGORY = gql`
 query GetSalesByCategory {
   getSalesByCategory {
@@ -88,6 +113,7 @@ query GetSalesByCategory {
 }
 `
 
+// Get sales by product
 export const GET_SALES_BY_PRODUCT = gql`
   query GetSalesByProduct($productId: String!) {
     getSalesByProduct(productId: $productId) {

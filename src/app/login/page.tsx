@@ -14,7 +14,7 @@ import {
     Link
 } from "@radix-ui/themes";
 import { gqlClient } from '@/services/graphql';
-import { LOGIN_USER } from '@/lib/gql/queries';
+import { GET_CURRENT_USER, LOGIN_USER } from '@/lib/gql/queries';
 
 const LoginPage = () => {
     const [userCred, setUserCred] = useState("");
@@ -28,27 +28,30 @@ const LoginPage = () => {
         setError({});
         setIsLoading(true);
 
-        try{
-          const data: { loginUser: { role : string } } =
-            await gqlClient.request(LOGIN_USER, { userCred, password });
+        try {
+            const data: { loginUser: { role: string } } =
+                await gqlClient.request(LOGIN_USER, { userCred, password });
 
-        if (data.loginUser) {
-            alert("Logged In Successfully");
+            if (data.loginUser) {
+                // get user info from server using cookie
+                const { currentUser } = await gqlClient.request<{ currentUser: { role: string } }>(GET_CURRENT_USER);
 
-            const role = data.loginUser.role.toLowerCase();
-            router.push(`/${role}/dashboard`);
-        } else {
-            setError({ message: "Invalid Credentials" });
-        }
-        }
-        catch(error){
-            console.log(error);
-            setError({message: "Something went wrong"});
-        }
-        finally{
+                if (currentUser) {
+                    const role = currentUser.role.toLowerCase();
+                    router.push(`/${role}/dashboard`); // redirect based on role
+                }
+                else {
+                    setError({ message: "Failed to fetch user info" });
+                }
+            } else {
+                setError({ message: "Failed to fetch user info" });
+            }
+        } catch (err) {
+            console.log(err);
+            setError({ message: "Something went wrong" });
+        } finally {
             setIsLoading(false);
         }
-
     };
 
     return (
@@ -130,7 +133,7 @@ const LoginPage = () => {
                                 <button
                                     type="submit"
                                     className="my-4 p-3 bg-blue-600 cursor-pointer rounded-md"
-                                    // disabled = {isLoading}
+                                // disabled = {isLoading}
                                 >
                                     {isLoading ? 'Logging in...' : 'Log In'}
                                 </button>

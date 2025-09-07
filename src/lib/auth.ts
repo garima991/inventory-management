@@ -6,6 +6,7 @@ interface TokenPayload {
     email: string;
     role: string;
     username: string;
+    tenantId ?: string;
 }
 
 export async function hashPassword(password: string): Promise<string> {

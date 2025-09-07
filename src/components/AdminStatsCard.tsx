@@ -16,7 +16,7 @@ const StatsCards = () => {
 
 const stats : StatCard[] = [
   { label: "Total Products", value: products.length, loading },
-  {label: "Total Users" , value: users.length, loading},
+  {label: "Total Members" , value: users.length, loading},
   { label: "Low Stock (≤5)", value: lowStockCount, loading },
   { label: "Inventory Value", value: `$${inventoryValue.toFixed(2)}`, loading },
 ];

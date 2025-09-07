@@ -4,8 +4,7 @@ import { Button, Dialog, Flex, Select, Text, TextField } from '@radix-ui/themes'
 import React, { useState } from 'react'
 import {gqlClient} from "@/services/graphql"
 import {CREATE_USER} from "@/lib/gql/mutation"
-import { User } from "../../../generated/prisma"
-
+import { User } from "../../../generated/prisma"//
 
 type CreateUserButtonProps = {
     onOptimisticCreate?: (tempUser: User) => void;
@@ -23,14 +22,15 @@ const CreateUserButton = ({ onOptimisticCreate, onServerConfirm, onErrorRollback
 	async function handleAddUser () {
 		const tempId = `temp-${Date.now()}`;
 		try{
-			const tempUser: User = {
+			const tempUser : User = {
 				id: tempId as unknown as any,
 				name,
 				email,
 				username,
 				password: undefined as any,
 				avatar: null as any,
-				role: role as any
+				role: role as any,
+				tenantId: "" as any 
 			};
 			onOptimisticCreate?.(tempUser);
 			const data : {createUser : User } = await gqlClient.request(CREATE_USER, {
@@ -38,7 +38,7 @@ const CreateUserButton = ({ onOptimisticCreate, onServerConfirm, onErrorRollback
 			})
 			if(data.createUser){
 				onServerConfirm?.(tempId, data.createUser);
-				alert("User Created Successfully");
+				// alert("User Created Successfully");
 				setName("");
 				setEmail("");
 				setUsername("");
@@ -46,7 +46,7 @@ const CreateUserButton = ({ onOptimisticCreate, onServerConfirm, onErrorRollback
 			}
 			else{
 				onErrorRollback?.(tempId);
-				alert("something went wrong");
+				// alert("something went wrong");
 			}
 		}
 		catch(error){

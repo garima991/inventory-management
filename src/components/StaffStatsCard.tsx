@@ -11,8 +11,7 @@ interface StatCard {
 }
 
 const StatsCards = () => {
-    const { products, loading, lowStockCount, inventoryValue } = useProducts();
-    const {users} = useUsers();
+    const { products, loading, lowStockCount} = useProducts();
 
 const stats : StatCard[] = [
  {label: "Products In stock" , value: products.length-lowStockCount, loading},
