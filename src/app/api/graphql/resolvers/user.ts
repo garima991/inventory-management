@@ -53,13 +53,14 @@ export const createUser = async (
   if (!user || user.role !== "ADMIN") return null;
 
   const { name, username, email, password, role } = args;
+  const hashedPassword = await hashPassword(password);
 
   return await prismaClient.user.create({
     data: {
       name,
       username,
       email,
-      password,
+      password : hashedPassword,
       role,
       tenantId: user.tenantId,
     },
