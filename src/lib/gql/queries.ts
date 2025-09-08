@@ -4,21 +4,14 @@ import { gql } from "graphql-request"
 
 // Login user
 export const LOGIN_USER = gql`
-query LoginUser($userCred: String!, $password: String!) {
-  loginUser(userCred: $userCred, password: $password) {
-    id
-    name
-    username
-    email
-    role
-    avatar
-  }
+query Query($userCred: String!, $password: String!) {
+  loginUser(userCred: $userCred, password: $password)
 }
 `;
 
 // Get current logged-in user
 export const GET_CURRENT_USER = gql`
-query GetCurrentUser {
+query CurrentUser {
   currentUser {
     id
     name
@@ -26,6 +19,7 @@ query GetCurrentUser {
     email
     role
     avatar
+    tenantId
   }
 }
 `;

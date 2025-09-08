@@ -1,14 +1,9 @@
 import { generateToken, hashPassword } from "@/lib/auth";
+import { CreateTenantArgs } from "@/lib/types";
 import { prismaClient } from "@/services/prisma";
 import { cookies } from "next/headers";
 
-interface CreateTenantArgs { 
-    orgName: string; 
-    adminName: string; 
-    adminUsername: string; 
-    adminEmail: string; 
-    adminPassword: string; 
-}
+
 
 export const createTenant = async (_: any, args: CreateTenantArgs) => {
     const { orgName, adminName, adminEmail, adminUsername, adminPassword } = args;

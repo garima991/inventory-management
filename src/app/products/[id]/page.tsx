@@ -44,7 +44,7 @@ const ProductDetailPage = () => {
       <div className="mb-10 flex justify-center">
         <Card
           size="4"
-          style={{ maxWidth: 900, width: "100%" }}
+          style={{ maxWidth:"950px", width: "100%" }}
           className="rounded-3xl border border-gray-800 shadow-xl  hover:shadow-2xl transition-shadow duration-300"
         >
           <Flex gap="6" align="start" className="flex flex-col md:flex-row">

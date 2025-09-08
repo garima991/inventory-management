@@ -23,11 +23,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
       <Card className="group rounded-xl border border-white/10 hover:border-indigo-500/40 transition-all duration-200 shadow-sm hover:shadow-md overflow-hidden">
       
         {product.imgUrl ? (
-          <div className="h-36 w-full overflow-hidden">
+          <div className="w-full overflow-hidden">
             <img
               src={product.imgUrl}
               alt={String(product.title || 'Product image')}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+              className="h-52 w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
               loading="lazy"
             />
           </div>
@@ -38,8 +38,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
         <Box p="3" className="min-w-0">
           <Flex align="center" gap="3" wrap="wrap">
             <Box className="min-w-0 flex-1">
-              <Flex align="stretch" gap="2" wrap="wrap">
-                <Text as="div" size="3" weight="bold" className="truncate">
+              <Flex align="stretch" gap="2">
+                <Text as="div" size="3" weight="bold" className="truncate" >
                   {product.title}
                 </Text>
                 <span className="px-2 py-0.5 text-[10px] rounded-full border border-indigo-500/20 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">

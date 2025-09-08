@@ -1,6 +1,6 @@
 import { prismaClient } from "@/services/prisma";
 import { RoleType } from "../../../../../generated/prisma";
-import { generateToken, hashPassword } from "@/lib/auth";
+import { comparePassword, generateToken, hashPassword } from "@/lib/auth";
 import { cookies } from "next/headers";
 
 export const loginUser = async (
@@ -18,8 +18,9 @@ export const loginUser = async (
     });
 
     if (!user) throw new Error("User not found");
-    const hashedPassword = await hashPassword(password) 
-    if (user.password !== hashedPassword) throw new Error("Invalid password");
+
+    const isPasswordValid = await comparePassword(password, user.password);
+    if (!isPasswordValid) throw new Error("Invalid password");
 
     const token = await generateToken({
       id: user.id,
@@ -34,7 +35,8 @@ export const loginUser = async (
     return true;
   } catch (error) {
     console.error(error);
-    return false
+    throw new Error("Login failed", );
+    // return false;
   }
 };
 

@@ -33,6 +33,7 @@ const LoginPage = () => {
                 await gqlClient.request(LOGIN_USER, { userCred, password });
 
             if (data.loginUser) {
+                console.log(data.loginUser);
                 // get user info from server using cookie
                 const { currentUser } = await gqlClient.request<{ currentUser: { role: string } }>(GET_CURRENT_USER);
 
@@ -40,6 +41,7 @@ const LoginPage = () => {
                     const role = currentUser.role.toLowerCase();
                     router.push(`/${role}/dashboard`); // redirect based on role
                 }
+                
                 else {
                     setError({ message: "Failed to fetch user info" });
                 }
