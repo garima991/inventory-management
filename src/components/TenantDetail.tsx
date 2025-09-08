@@ -23,7 +23,7 @@ export default function TenantDetail() {
   useEffect(() => {
     async function fetchTenant() {
       try {
-        const data = await gqlClient.request(GET_TENANT);
+        const data : { getTenant: { name: string; admin: { email: string } } | null } = await gqlClient.request(GET_TENANT);
         setTenant(data.getTenant || null);
       } catch (e) {
         console.error("Error while fetching tenant", e);

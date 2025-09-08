@@ -16,7 +16,7 @@ export function useSales () {
       useEffect(() => {
         async function fetchSales(){
             try{
-                const data = await gqlClient.request(GET_ALL_SALES);
+                const data : { getAllSales: Sale[] } = await gqlClient.request(GET_ALL_SALES);
                 setSales(data.getAllSales || []);
             }
             catch(e){
@@ -33,7 +33,7 @@ export function useSales () {
       useEffect(() => {
         async function fetchSalesByCategory() {
           try {
-            const data = await gqlClient.request(GET_SALES_BY_CATEGORY);
+            const data: { getSalesByCategory: Array<{ category: string; totalQuantity: number; totalRevenue: number }> } = await gqlClient.request(GET_SALES_BY_CATEGORY);
             setCategorySales(data.getSalesByCategory || []);
           } catch (e) {
             console.error("Error fetching sales by category:", e);

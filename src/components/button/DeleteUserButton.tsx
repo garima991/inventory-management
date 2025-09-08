@@ -16,7 +16,7 @@ export default function DeleteUserButton({ user, onOptimisticDelete, onRollbackD
     async function handleDelete() {
        try{
             onOptimisticDelete?.(user?.id);
-            const data = await gqlClient.request(DELETE_USER, { deleteUserId: user.id });
+            const data : { deleteUser: boolean } = await gqlClient.request(DELETE_USER, { deleteUserId: user.id });
             if(data.deleteUser){
                 console.log("User deleted successfully");
             }
