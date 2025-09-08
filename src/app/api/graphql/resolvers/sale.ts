@@ -87,7 +87,7 @@ export const getSalesByProduct = async (_: any, args: { productId: string }, con
 };
 
 export const getSalesByCategory = async (_: any, __: any, context: any) => {
-  const { user} = context;
+  const { user } = context;
   if (!user) throw new Error("Unauthorized");
 
   try {

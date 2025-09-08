@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useUsers } from "@/hooks/useUsers";
 import UserCard from "@/components/UserCard";
-import CreateUserButton from "@/components/button/CreateUserButton";
+import CreateUserButton from "@/components/button/UserDialogButton";
 
 const UsersSection = () => {
   const {
@@ -30,8 +30,9 @@ const UsersSection = () => {
     <div className="rounded-xl border border-white/10 p-5">
       <div className="flex flex-col gap-3 mb-4">
         <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
-          <h2 className="text-lg font-semibold">Users</h2>
+          <h2 className="text-lg font-semibold">User Management</h2>
           <CreateUserButton
+            mode = "create"
             onOptimisticCreate={optimisticCreate}
             onServerConfirm={confirmCreate}
             onErrorRollback={rollbackCreate}

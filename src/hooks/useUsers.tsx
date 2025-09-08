@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { gqlClient } from "@/services/graphql";
 import { GET_ALL_USERS } from "@/lib/gql/queries";
@@ -22,24 +23,58 @@ export function useUsers() {
     fetchUsers();
   }, []);
 
-  // optimistic handlers
+  // -------- Optimistic Create --------
   function optimisticCreate(tempUser: User) {
     setUsers((prev) => [tempUser, ...prev]);
   }
+
   function confirmCreate(tempId: string, confirmed: User) {
     setUsers((prev) =>
       prev.map((u) => (String(u.id) === String(tempId) ? confirmed : u))
     );
   }
-  function rollbackCreate(tempId: string) {
-    setUsers((prev) => prev.filter((u) => String(u.id) !== String(tempId)));
+
+  function rollbackCreate(temp: User) {
+    setUsers((prev) => prev.filter((u) => String(u.id) !== String(temp.id)));
+  }
+
+  // -------- Optimistic Edit --------
+  function optimisticEdit(updated: User) {
+    setUsers((prev) =>
+      prev.map((u) => (String(u.id) === String(updated.id) ? updated : u))
+    );
+  }
+
+  function rollbackEdit(original: User) {
+    setUsers((prev) =>
+      prev.map((u) => (String(u.id) === String(original.id) ? original : u))
+    );
+  }
+
+  // -------- Optimistic Delete --------
+  function optimisticDelete(id: string) {
+    setUsers((prev) => prev.filter((u) => String(u.id) !== String(id)));
+  }
+
+  function rollbackDelete(user: User) {
+    setUsers((prev) => [user, ...prev]);
   }
 
   return {
     users,
     loading,
+
+    // create
     optimisticCreate,
     confirmCreate,
     rollbackCreate,
+
+    // edit
+    optimisticEdit,
+    rollbackEdit,
+
+    // delete
+    optimisticDelete,
+    rollbackDelete,
   };
 }

@@ -117,3 +117,16 @@ export const GET_SALES_BY_PRODUCT = gql`
     }
   }
 `;
+
+
+export const GET_TENANT = gql`
+query GetTenant{
+  getTenant{
+    id
+    name
+    createdAt
+    admin {
+      email
+    }
+  }
+}`

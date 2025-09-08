@@ -77,12 +77,12 @@ export const updateUserRole = async (
   const { user } = context;
   if (!user || user.role !== "ADMIN") return false;
 
-  const updated = await prismaClient.user.updateMany({
+  const updated = await prismaClient.user.update({
     where: { id: args.id, tenantId: user.tenantId },
     data: { role: args.role },
   });
 
-  return updated.count > 0;
+  return updated;
 };
 
 export const updateUserProfile = async (
@@ -100,7 +100,7 @@ export const updateUserProfile = async (
   if (!user) return null;
   if (user.id !== args.id && user.role !== "ADMIN") return false;
 
-  const updated = await prismaClient.user.updateMany({
+  const updated = await prismaClient.user.update({
     where: { id: args.id, tenantId: user.tenantId },
     data: {
       name: args.name,
@@ -110,7 +110,7 @@ export const updateUserProfile = async (
     },
   });
 
-  return updated.count > 0 ? { ...args } : null;
+  return updated;
 };
 
 export const getAllUsers = async (_: any, __: any, context: any) => {
@@ -123,4 +123,23 @@ export const getAllUsers = async (_: any, __: any, context: any) => {
       role: { not: "ADMIN" },
     },
   });
+};
+
+export const deleteUser = async (
+  _: any,
+  args: { id: string },
+  context: any
+) => {
+  const { user } = context;
+  if (!user || user.role !== "ADMIN") return false;
+
+  try {
+    await prismaClient.user.delete({
+      where: { id: args.id, tenantId: user.tenantId },
+    });
+    return true;
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    return false;
+  }
 };

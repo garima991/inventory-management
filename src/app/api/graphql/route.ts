@@ -8,6 +8,7 @@ import {
   updateUserProfile,
   updateUserRole,
   getAllUsers,
+  deleteUser,
 } from "./resolvers/user";
 import {
   createProduct,
@@ -20,7 +21,7 @@ import {
   getSalesByCategory,
   getSalesByProduct,
 } from "./resolvers/sale";
-import { createTenant } from "./resolvers/tenant";
+import { createTenant, getTenant } from "./resolvers/tenant";
 import getUserFromCookies from "@/lib/utils/dal";
 
 
@@ -34,6 +35,7 @@ const resolvers = {
     getAllSales,
     getSalesByCategory,
     getSalesByProduct,
+    getTenant
   },
 
   Mutation: {
@@ -43,6 +45,7 @@ const resolvers = {
     updateUserProfile,
     createProduct,
     createSale,
+    deleteUser
   },
 };
 

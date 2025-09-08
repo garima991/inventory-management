@@ -17,7 +17,7 @@ export default function ThemeContextProvider ({children} : {children : React.Rea
 
     return (
         <ThemeContext.Provider value = {{isDark, setIsDark}}>
-            <Theme appearance={isDark ? "dark" : "light"}>
+            <Theme appearance={isDark ? "dark" : "light"} accentColor="indigo">
                 {children}
             </Theme>
         </ThemeContext.Provider>

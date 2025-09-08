@@ -49,6 +49,13 @@ mutation UpdateUserRole($id: String!, $role: String!) {
 }
 `;
 
+// Delete a user (Admin only)
+export const DELETE_USER = gql`
+mutation Mutation($deleteUserId: String!) {
+  deleteUser(id: $deleteUserId)
+}`
+
+
 // ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~   PRODUCT MUTATIONS ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
 
 // Add a new product

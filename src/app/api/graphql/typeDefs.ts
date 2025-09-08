@@ -10,6 +10,7 @@ export const typeDefs = gql`
     getAllSales: [Sale]!
     getSalesByCategory: [CategorySales!]
     getSalesByProduct(productId: String!): [Sale]!
+    getTenant: Tenant!
   }
   type Mutation {
     createTenant(orgName: String!, adminName: String!, adminUsername: String!, adminEmail: String!, adminPassword: String!): Tenant!
@@ -18,13 +19,14 @@ export const typeDefs = gql`
     updateUserProfile(id: String!, name: String, username: String, email: String, avatar: String): User
     createProduct(title: String!, description: String!, category: String!, price: Float!, stock: Int!, imgUrl: String!): Product
     createSale(productId: String!, quantity: Int!): Boolean!
+    deleteUser(id: String!): Boolean!
   }
 
   type Tenant {
     id: String!
     name: String!
     createdAt: String!
-    # admin: User!
+    admin: User!
   }
 
   type User {
