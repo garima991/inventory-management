@@ -9,6 +9,7 @@ import {
   updateUserRole,
   getAllUsers,
   deleteUser,
+  logoutUser,
 } from "./resolvers/user";
 import {
   createProduct,
@@ -45,7 +46,8 @@ const resolvers = {
     updateUserProfile,
     createProduct,
     createSale,
-    deleteUser
+    deleteUser,
+    logoutUser,
   },
 };
 

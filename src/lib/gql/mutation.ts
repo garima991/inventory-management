@@ -55,6 +55,12 @@ mutation Mutation($deleteUserId: String!) {
   deleteUser(id: $deleteUserId)
 }`
 
+// Logout user
+export const LOGOUT_USER = gql`
+mutation LogoutUser{
+  logoutUser
+}`
+
 
 // ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~   PRODUCT MUTATIONS ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ 
 

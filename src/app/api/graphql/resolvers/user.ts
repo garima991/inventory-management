@@ -143,3 +143,18 @@ export const deleteUser = async (
     return false;
   }
 };
+
+
+export const logoutUser = async () => {
+  const cookieStore = await cookies();
+
+  try {
+    // Clear the token cookie
+    cookieStore.delete("token");
+
+    return true; 
+  } catch (error) {
+    console.error("Logout failed:", error);
+    throw new Error("Logout failed");
+  }
+};

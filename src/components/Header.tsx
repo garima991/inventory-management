@@ -1,18 +1,8 @@
-"use client";
-
 import { Box, Flex, Text } from "@radix-ui/themes";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import UserDropDown from "./UserDropDown";
 
 export default function Header() {
-  const pathname = usePathname();
-
-  const navLinks = [
-    { href: "/sales", label: "Sales" },
-    { href: "/products", label: "Products" },
-  ];
-
   return (
     <header className="sticky top-0 z-40 px-6 py-2">
       <Box
@@ -26,7 +16,6 @@ export default function Header() {
           wrap="wrap"
           className="gap-4 sm:flex-row flex-col"
         >
-          {/* Branding */}
           <Link href="/" className="flex items-center gap-3 group">
             <Text
               size="5"

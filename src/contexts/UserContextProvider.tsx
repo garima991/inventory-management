@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext} from "react";
+import { createContext, ReactNode, useState} from "react";
 import { RoleType } from "../../generated/prisma";
 
 
@@ -13,15 +13,17 @@ type UserWithoutPassword = {
     role:RoleType;
 }
 
-export const UserContext = createContext <{
-    user?: UserWithoutPassword
-}> ({});
+export const UserContext = createContext<{
+  user?: UserWithoutPassword;
+  setUser?: (user: UserWithoutPassword) => void;
+}>({});
 
+export default function UserContextProvider({ children, user: initialUser }: { children: ReactNode; user: UserWithoutPassword }) {
+  const [user, setUser] = useState<UserWithoutPassword>(initialUser);
 
-export default function UserContextProvider({ children, user }: { children: React.ReactNode, user : UserWithoutPassword }) {
-    return (
-        <UserContext.Provider value={{ user }}>
-            {children}
-        </UserContext.Provider>
-    )
+  return (
+    <UserContext.Provider value={{ user, setUser }}>
+      {children}
+    </UserContext.Provider>
+  );
 }

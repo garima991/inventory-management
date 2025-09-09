@@ -20,6 +20,7 @@ export const typeDefs = gql`
     createProduct(title: String!, description: String!, category: String!, price: Float!, stock: Int!, imgUrl: String!): Product
     createSale(productId: String!, quantity: Int!): Boolean!
     deleteUser(id: String!): Boolean!
+    logoutUser: Boolean!
   }
 
   type Tenant {
