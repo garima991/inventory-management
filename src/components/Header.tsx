@@ -1,6 +1,7 @@
 import { Box, Flex, Text } from "@radix-ui/themes";
 import Link from "next/link";
 import UserDropDown from "./UserDropDown";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
   return (
@@ -8,7 +9,7 @@ export default function Header() {
       <Box
         width="100%"
         p="3"
-        className="glass-panel rounded-xl border border-white/10 shadow-sm backdrop-blur-md"
+        className="glass-panel rounded-xl border border-default shadow-sm backdrop-blur-md"
       >
         <Flex
           justify="between"
@@ -20,14 +21,14 @@ export default function Header() {
             <Text
               size="5"
               weight="bold"
-              className="text-shadow-white"
+              className="text-default"
             >
               Inventory
             </Text>
           </Link>
 
           <Flex gap="5" align="center" className="flex-wrap justify-center">
-            
+            <ThemeToggle />
             <UserDropDown />
           </Flex>
         </Flex>

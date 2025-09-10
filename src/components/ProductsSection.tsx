@@ -20,7 +20,7 @@ const ProductsSection = () => {
 
 
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 6; 
+  const itemsPerPage = 9; 
 
   const categories = useMemo(() => {
     const set = new Set<string>();
@@ -115,7 +115,7 @@ const ProductsSection = () => {
             onChange={(e) => setQuery(e.target.value)}
             className="w-full md:max-w-xs rounded-lg border border-white/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-indigo-400/60"
           />
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}

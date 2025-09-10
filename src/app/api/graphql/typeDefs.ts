@@ -10,6 +10,7 @@ export const typeDefs = gql`
     getAllSales: [Sale]!
     getSalesByCategory: [CategorySales!]
     getSalesByProduct(productId: String!): [Sale]!
+    getTopSellingProducts(limit: Int): [ProductSales!]
     getTenant: Tenant!
   }
   type Mutation {
@@ -63,6 +64,15 @@ export const typeDefs = gql`
 
   type CategorySales {
     category: String!
+    totalQuantity: Int!
+    totalRevenue: Float!
+  }
+
+  type ProductSales {
+    productId: String!
+    title: String!
+    category: String!
+    price: Float!
     totalQuantity: Int!
     totalRevenue: Float!
   }

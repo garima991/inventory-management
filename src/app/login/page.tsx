@@ -13,12 +13,15 @@ import {
     Separator,
     Link
 } from "@radix-ui/themes";
+import { EyeOpenIcon, EyeClosedIcon } from '@radix-ui/react-icons';
 import { gqlClient } from '@/services/graphql';
 import { GET_CURRENT_USER, LOGIN_USER } from '@/lib/gql/queries';
+import ThemeToggle from "@/components/ThemeToggle";
 
 const LoginPage = () => {
     const [userCred, setUserCred] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<{ message?: string }>({});
     const router = useRouter();
@@ -58,12 +61,14 @@ const LoginPage = () => {
 
     return (
         <Box
-            className="min-h-screen flex items-center justify-center py-8 px-4 sm:p-6"
-            style={{ background: "var(--background)" }}
+            className="min-h-screen flex items-center justify-center py-8 px-4 sm:p-6 bg-surface text-default"
         >
+            <div className="fixed top-4 right-4 z-50">
+                <ThemeToggle />
+            </div>
             <Container size="1" className="w-full max-w-md mx-auto">
 
-                <Card size="4" className="relative z-10">
+                <Card size="4" className="relative z-10 bg-surface border border-default">
                     <Flex direction="column" gap="4 sm:gap-6">
                         <Box className="text-center mb-10">
                             <Heading
@@ -105,7 +110,7 @@ const LoginPage = () => {
                                         placeholder="Enter your email or username"
                                         value={userCred}
                                         onChange={(e) => setUserCred(e.target.value)}
-                                        className=" w-full pl-4 pr-4 py-3 border rounded-lg"
+                                        className=" w-full pl-4 pr-4 py-3 border rounded-lg bg-surface text-default border-default"
                                         required
                                     />
                                 </Box>
@@ -121,20 +126,29 @@ const LoginPage = () => {
                                         Password
                                     </Text>
 
-                                    <input
-                                        type="password"
-                                        placeholder="Enter your password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        className=" w-full pl-4 pr-4 py-3 border rounded-lg"
-                                        required
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            type={showPassword ? 'text' : 'password'}
+                                            placeholder="Enter your password"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            className=" w-full pl-4 pr-10 py-3 border rounded-lg bg-surface text-default border-default"
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword((prev) => !prev)}
+                                            className="absolute inset-y-0 right-2 my-auto p-1 text-default/70 hover:text-default"
+                                        >
+                                            {showPassword ? <EyeClosedIcon width={20} height={20} /> : <EyeOpenIcon width={20} height={20} />}
+                                        </button>
+                                    </div>
 
                                 </Box>
 
                                 <button
                                     type="submit"
-                                    className="my-4 p-3 bg-blue-600 cursor-pointer rounded-md"
+                                    className="my-4 p-3 bg-[var(--accent)] text-white cursor-pointer rounded-md"
                                 // disabled = {isLoading}
                                 >
                                     {isLoading ? 'Logging in...' : 'Log In'}

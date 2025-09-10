@@ -118,7 +118,6 @@ export const GET_SALES_BY_PRODUCT = gql`
   }
 `;
 
-
 export const GET_TENANT = gql`
 query GetTenant{
   getTenant{
@@ -130,3 +129,17 @@ query GetTenant{
     }
   }
 }`
+
+// Get top selling products
+export const GET_TOP_SELLING_PRODUCTS = gql`
+  query GetTopSellingProducts($limit: Int) {
+    getTopSellingProducts(limit: $limit) {
+      productId
+      title
+      category
+      price
+      totalQuantity
+      totalRevenue
+    }
+  }
+`;

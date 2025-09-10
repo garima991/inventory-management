@@ -37,9 +37,9 @@ export default function TenantDetail() {
 
   
   return (
-    <div className="border border-white/10 rounded-md p-5 max-h-fit">
+    <div className="border border-default rounded-md p-5 max-h-fit bg-surface text-default">
        
-      <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2 mb-2">
+      <div className="flex items-center justify-between gap-3 border-b border-default pb-2 mb-2">
         <Text size="4" weight="bold">
           Company Details
         </Text>
@@ -48,7 +48,7 @@ export default function TenantDetail() {
          {loading ? (
             <div className="flex flex-col gap-3">
           {Array.from({ length: 2 }).map((_, idx) => (
-            <div key={idx} className="h-14 rounded-lg bg-white/10 animate-pulse" />
+            <div key={idx} className="h-14 rounded-lg bg-surface-2 animate-pulse border border-default" />
           ))}
         </div>
         ): tenant ? (
@@ -58,7 +58,7 @@ export default function TenantDetail() {
             <Text weight="regular">Company Name</Text>
           </Flex>
 
-          <Box className="border border-white/10 rounded p-3 bg-white/5 transition text-white/30">
+          <Box className="border border-default rounded p-3 bg-surface-2 transition text-muted">
             {tenant.name}
           </Box>
         </Flex>
@@ -68,13 +68,13 @@ export default function TenantDetail() {
             <Text weight="regular">Admin Email</Text>
           </Flex>
 
-          <Box className="border border-white/10 rounded p-3 bg-white/5 transition text-white/30">
+          <Box className="border border-default rounded p-3 bg-surface-2 transition text-muted">
             {tenant.admin.email}
           </Box>
         </Flex>
       </Flex>
         ):( 
-          <p className="text-sm text-gray-500">No tenant found.</p>
+          <p className="text-sm text-muted">No tenant found.</p>
         )}
      
     </div>

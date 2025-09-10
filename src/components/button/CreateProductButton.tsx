@@ -5,6 +5,7 @@ import React, { useState } from 'react'
 import { gqlClient } from "@/services/graphql"
 import { Product } from "../../../generated/prisma"
 import { ADD_PRODUCT } from "@/lib/gql/mutation"
+import { CldUploadWidget } from "next-cloudinary"
 
 
 type CreateProductButtonProps = {
@@ -147,11 +148,35 @@ const CreateProductButton = ({ onOptimisticCreate, onServerConfirm, onErrorRollb
 						<Text as="div" size="2" weight="bold">
 							Image
 						</Text>
-						<TextField.Root
-							placeholder="Enter Image URL"
-							value={imgUrl}
-							onChange={(e) => setImgUrl(e.target.value)}
-						/>
+						<Flex gap="3" align="center">
+							<TextField.Root
+								placeholder="Enter Image URL or upload"
+								value={imgUrl}
+								onChange={(e) => setImgUrl(e.target.value)}
+								className="flex-1"
+							/>
+							<CldUploadWidget
+								uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET}
+								signatureEndpoint="/api/upload"
+								onSuccess={(result) => {
+									if (typeof result.info === "object" && "secure_url" in result.info) {
+										setImgUrl((result.info as any).secure_url as string);
+									}
+								}}
+								options={{
+									singleUploadAutoClose: true,
+								}}
+							>
+								{({ open }) => (
+									<Button variant="soft" color="indigo" onClick={() => open()}>Upload</Button>
+								)}
+							</CldUploadWidget>
+						</Flex>
+						{imgUrl && (
+							<div className="mt-2">
+								<img src={imgUrl} alt="Preview" className="h-24 w-24 object-cover rounded-md border border-default" />
+							</div>
+						)}
 					</label>
 
 

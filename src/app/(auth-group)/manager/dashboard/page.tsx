@@ -3,6 +3,7 @@ import ProductsSection from "@/components/ProductsSection";
 import ManagerStatsCards from "@/components/ManagerStatsCard";
 import SalesByCategoryChart from "@/components/charts/SalesByCategoryChart";
 import StockByCategoryChart from "@/components/charts/StocksByCategoryChart";
+import TopProductsChart from "@/components/charts/TopProductsChart";
 
 export default function ManagerDashboard() {
   return (
@@ -12,6 +13,7 @@ export default function ManagerDashboard() {
         <ProductsSection />
         <div className="lg:col-span-4 space-y-6">
           <UsersSection />
+          <TopProductsChart/>
           <SalesByCategoryChart/>
           <StockByCategoryChart/>
         </div>
