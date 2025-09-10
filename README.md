@@ -22,6 +22,10 @@ A modern, multi-tenant inventory management app built with Next.js 14 (App Route
 - GraphQL (Apollo Server on Next.js route handler)
 - Radix UI + Tailwind CSS
 
+## Demo Video
+  https://github.com/user-attachments/assets/0b402570-aa9f-4931-80fa-937a9bcf27ff
+
+
 ## Getting Started
 
 1. **Install dependencies**
@@ -86,6 +90,7 @@ Visit `http://localhost:3000`.
 - Any platform that supports Next.js 14 (Vercel recommended)
 - Ensure `DATABASE_URL` and other secrets are configured in your host
 - Run `prisma migrate deploy` during deploy
+
 
 ## License
 
