@@ -5,6 +5,26 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e5e7eb;
+  --accent: #4f46e5;
+  /* Chart theme tokens */
+  --chart-grid: var(--border);
+  --chart-axis: var(--muted);
+  --chart-surface: var(--surface);
+  --chart-tooltip-bg: var(--surface-2);
+  --chart-tooltip-text: var(--text);
+  --chart-series-1: #6366f1; /* indigo-500/600 */
+  --chart-series-2: #ec4899; /* pink-500 */
+  --chart-series-3: #22c55e; /* green-500 */
+  --chart-series-4: #f59e0b; /* amber-500 */
+  --chart-series-5: #06b6d4; /* cyan-500 */
+  --chart-series-6: #8b5cf6; /* violet-500 */
+  --chart-series-7: #ef4444; /* red-500 */
+  --chart-series-8: #14b8a6; /* teal-500 */
 }
 
 @theme inline {
@@ -14,11 +34,82 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Override via data-theme attribute with fallback to media query */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --surface: #0b0b0b;
+    --surface-2: #111317;
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+    --border: #1f2937;
+    --accent: #6366f1;
+    /* Chart theme tokens (dark) */
+    --chart-grid: var(--border);
+    --chart-axis: var(--muted);
+    --chart-surface: var(--surface);
+    --chart-tooltip-bg: color-mix(in oklab, var(--surface) 92%, black);
+    --chart-tooltip-text: var(--text);
+    --chart-series-1: #818cf8; /* slightly lighter for contrast on dark */
+    --chart-series-2: #f472b6;
+    --chart-series-3: #34d399;
+    --chart-series-4: #fbbf24;
+    --chart-series-5: #22d3ee;
+    --chart-series-6: #a78bfa;
+    --chart-series-7: #f87171;
+    --chart-series-8: #2dd4bf;
   }
+}
+
+:root[data-theme="light"] {
+  --background: #ffffff;
+  --foreground: #171717;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e5e7eb;
+  --accent: #4f46e5;
+  /* Chart theme tokens (light) */
+  --chart-grid: var(--border);
+  --chart-axis: var(--muted);
+  --chart-surface: var(--surface);
+  --chart-tooltip-bg: var(--surface-2);
+  --chart-tooltip-text: var(--text);
+  --chart-series-1: #6366f1;
+  --chart-series-2: #ec4899;
+  --chart-series-3: #22c55e;
+  --chart-series-4: #f59e0b;
+  --chart-series-5: #06b6d4;
+  --chart-series-6: #8b5cf6;
+  --chart-series-7: #ef4444;
+  --chart-series-8: #14b8a6;
+}
+
+:root[data-theme="dark"] {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --surface: #0b0b0b;
+  --surface-2: #111317;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --border: #1f2937;
+  --accent: #6467c0;
+  /* Chart theme tokens (dark) */
+  --chart-grid: var(--border);
+  --chart-axis: var(--muted);
+  --chart-surface: var(--surface);
+  --chart-tooltip-bg: color-mix(in oklab, var(--surface) 92%, black);
+  --chart-tooltip-text: var(--text);
+  --chart-series-1: #818cf8;
+  --chart-series-2: #f472b6;
+  --chart-series-3: #34d399;
+  --chart-series-4: #fbbf24;
+  --chart-series-5: #22d3ee;
+  --chart-series-6: #a78bfa;
+  --chart-series-7: #f87171;
+  --chart-series-8: #2dd4bf;
 }
 
 body {
@@ -37,6 +128,26 @@ body {
   -webkit-backdrop-filter: saturate(140%) blur(10px);
   backdrop-filter: saturate(140%) blur(10px);
 }
+
+/* Theme-aware utility classes */
+.bg-surface { background: var(--surface); }
+.bg-surface-2 { background: var(--surface-2); }
+.text-default { color: var(--text); }
+.text-muted { color: var(--muted); }
+.border-default { border-color: var(--border); }
+.link-accent { color: var(--accent); }
+
+/* Ensure generic Tailwind borders pick up theme color */
+.border { border-color: var(--border) !important; }
+
+/* Form element defaults */
+input, select, textarea {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+hr { border-color: var(--border); }
 
 *::-webkit-scrollbar {
   width: 10px;

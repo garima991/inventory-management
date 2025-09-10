@@ -3,8 +3,10 @@
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { Box, Card, Container, Flex, Text, Heading } from "@radix-ui/themes";
+import { EyeOpenIcon, EyeClosedIcon } from '@radix-ui/react-icons';
 import { gqlClient } from '@/services/graphql';
 import { CREATE_TENANT } from '@/lib/gql/mutation'
+import ThemeToggle from "@/components/ThemeToggle";
 
 const CreateCompanyPage = () => {
     const [orgName, setOrgName] = useState("");
@@ -12,6 +14,7 @@ const CreateCompanyPage = () => {
     const [adminEmail, setAdminEmail] = useState("");
     const [adminUsername, setAdminUsername] = useState("");
     const [adminPassword, setAdminPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<{ message?: string }>({});
     const router = useRouter();
@@ -22,7 +25,7 @@ const CreateCompanyPage = () => {
         setIsLoading(true);
 
         try {
-            const data = await gqlClient.request(CREATE_TENANT, {
+            const data : { createTenant: { id: string; name: string; createdAt: string } } = await gqlClient.request(CREATE_TENANT, {
                 orgName,
                 adminName,
                 adminEmail,
@@ -46,11 +49,13 @@ const CreateCompanyPage = () => {
 
     return (
         <Box
-            className="min-h-screen flex items-center justify-center py-8 px-4 sm:p-6"
-            style={{ background: "var(--background)" }}
+            className="min-h-screen flex items-center justify-center py-8 px-4 sm:p-6 bg-surface text-default"
         >
+            <div className="fixed top-4 right-4 z-50">
+                <ThemeToggle />
+            </div>
             <Container size="1" className="w-full max-w-md mx-auto">
-                <Card size="4" className="relative z-10">
+                <Card size="4" className="relative z-10 bg-surface border border-default">
                     <Flex direction="column" gap="4 sm:gap-6">
                         <Box className="text-center mb-10">
                             <Heading size={{ initial: "8", sm: "6" }} className="mb-7">
@@ -79,7 +84,7 @@ const CreateCompanyPage = () => {
                                         placeholder="Enter company name"
                                         value={orgName}
                                         onChange={(e) => setOrgName(e.target.value)}
-                                        className="w-full pl-4 pr-4 py-3 border rounded-lg"
+                                        className="w-full pl-4 pr-4 py-3 border rounded-lg bg-surface text-default border-default"
                                         required
                                     />
                                 </Box>
@@ -91,7 +96,7 @@ const CreateCompanyPage = () => {
                                         placeholder="Admin full name"
                                         value={adminName}
                                         onChange={(e) => setAdminName(e.target.value)}
-                                        className="w-full pl-4 pr-4 py-3 border rounded-lg"
+                                        className="w-full pl-4 pr-4 py-3 border rounded-lg bg-surface text-default border-default"
                                         required
                                     />
                                 </Box>
@@ -103,7 +108,7 @@ const CreateCompanyPage = () => {
                                         placeholder="Admin email"
                                         value={adminEmail}
                                         onChange={(e) => setAdminEmail(e.target.value)}
-                                        className="w-full pl-4 pr-4 py-3 border rounded-lg"
+                                        className="w-full pl-4 pr-4 py-3 border rounded-lg bg-surface text-default border-default"
                                         required
                                     />
                                 </Box>
@@ -115,26 +120,35 @@ const CreateCompanyPage = () => {
                                         placeholder="Admin username"
                                         value={adminUsername}
                                         onChange={(e) => setAdminUsername(e.target.value)}
-                                        className="w-full pl-4 pr-4 py-3 border rounded-lg"
+                                        className="w-full pl-4 pr-4 py-3 border rounded-lg bg-surface text-default border-default"
                                         required
                                     />
                                 </Box>
 
                                 <Box className="flex flex-col gap-2">
                                     <Text as="label" size="2" weight="medium">Admin Password</Text>
-                                    <input
-                                        type="password"
-                                        placeholder="Admin password"
-                                        value={adminPassword}
-                                        onChange={(e) => setAdminPassword(e.target.value)}
-                                        className="w-full pl-4 pr-4 py-3 border rounded-lg"
-                                        required
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            type={showPassword ? 'text' : 'password'}
+                                            placeholder="Admin password"
+                                            value={adminPassword}
+                                            onChange={(e) => setAdminPassword(e.target.value)}
+                                            className="w-full pl-4 pr-10 py-3 border rounded-lg bg-surface text-default border-default"
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword((prev) => !prev)}
+                                            className="absolute inset-y-0 right-2 my-auto p-1 text-default/70 hover:text-default"
+                                        >
+                                            {showPassword ? <EyeClosedIcon width={20} height={20} /> : <EyeOpenIcon width={20} height={20} />}
+                                        </button>
+                                    </div>
                                 </Box>
 
                                 <button
                                     type="submit"
-                                    className="my-4 p-3 bg-blue-600 cursor-pointer rounded-md"
+                                    className="my-4 p-3 bg-[var(--accent)] text-white cursor-pointer rounded-md"
                                 >
                                     {isLoading ? 'Creating...' : 'Create Company Account'}
                                 </button>

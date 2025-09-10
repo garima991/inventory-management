@@ -50,7 +50,6 @@ const UserDropDown = () => {
         </button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="bg-[--color-panel-solid] min-w-[150px] mt-1">
-        <DropdownMenu.Item>Notifications</DropdownMenu.Item>
         {pathname != "/admin/settings" ?
           <DropdownMenu.Item
             className={user?.role !== "STAFF" ? "block" : "hidden"}

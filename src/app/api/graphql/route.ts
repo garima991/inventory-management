@@ -21,6 +21,7 @@ import {
   getAllSales,
   getSalesByCategory,
   getSalesByProduct,
+  getTopSellingProducts,
 } from "./resolvers/sale";
 import { createTenant, getTenant } from "./resolvers/tenant";
 import getUserFromCookies from "@/lib/utils/dal";
@@ -36,6 +37,7 @@ const resolvers = {
     getAllSales,
     getSalesByCategory,
     getSalesByProduct,
+    getTopSellingProducts,
     getTenant
   },
 

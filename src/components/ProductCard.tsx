@@ -18,22 +18,26 @@ const ProductCard = ({ product }: ProductCardProps) => {
       ? 'border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400'
       : 'border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
 
+
   return (
     <Box mb="3">
       <Card className="group rounded-xl border border-white/10 hover:border-indigo-500/40 transition-all duration-200 shadow-sm hover:shadow-md overflow-hidden">
       
-        {product.imgUrl ? (
-          <div className="w-full overflow-hidden">
+        <div className="relative w-full overflow-hidden bg-gradient-to-br from-indigo-500/10 to-purple-500/10">
+          {product.imgUrl ? (
             <img
               src={product.imgUrl}
               alt={String(product.title || 'Product image')}
+              title={String(product.title || 'Product')}
               className="h-52 w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
               loading="lazy"
             />
-          </div>
-        ) : (
-          <div className="h-16 w-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20" />
-        )}
+          ) : (
+            <div className="h-52 w-full flex items-center justify-center">
+              <Avatar fallback={titleInitial} size="5" className="shadow-sm" />
+            </div>
+          )}
+        </div>
 
         <Box p="3" className="min-w-0">
           <Flex align="center" gap="3" wrap="wrap">
@@ -48,7 +52,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
               </Flex>
               <Flex align="center" justify="between" className="mt-1">
                 <Text as="div" size="2" weight="medium" className="opacity-90">
-                  ${price.toFixed(2)}
+                  {`${price}`}
                 </Text>
                 <span className={`px-2 py-0.5 text-[10px] rounded-full border ${stockBadgeClass}`}>
                   {stock === 0 ? 'Out of stock' : stock <= 5 ? 'Low stock' : 'In stock'}
@@ -59,6 +63,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
                   {stock} in stock
                 </Text>
               )}
+              <div className="mt-2 opacity-70 text-[11px] flex items-center gap-1 group-hover:opacity-100">
+                <span>View details</span>
+                <span>→</span>
+              </div>
             </Box>
           </Flex>
         </Box>

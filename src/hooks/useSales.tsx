@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { gqlClient } from "@/services/graphql";
-import { GET_ALL_SALES, GET_SALES_BY_CATEGORY } from "@/lib/gql/queries";
+import { GET_ALL_SALES, GET_SALES_BY_CATEGORY, GET_TOP_SELLING_PRODUCTS } from "@/lib/gql/queries";
 import {Sale} from "../../generated/prisma";
 
 
@@ -12,6 +12,11 @@ export function useSales () {
         Array<{ category: string; totalQuantity: number; totalRevenue: number }>
       >([]);
       const [categorySalesLoading, setCategorySalesLoading] = useState(true);
+
+      const [topProducts, setTopProducts] = useState<
+        Array<{ productId: string; title: string; category: string; price: number; totalQuantity: number; totalRevenue: number }>
+      >([]);
+      const [topProductsLoading, setTopProductsLoading] = useState(true);
 
       useEffect(() => {
         async function fetchSales(){
@@ -44,7 +49,20 @@ export function useSales () {
         fetchSalesByCategory();
       }, []);
 
-    
-    return {sales, salesLoading, categorySales, categorySalesLoading };
+      useEffect(() => {
+        async function fetchTopProducts() {
+          try {
+            const data: { getTopSellingProducts: Array<{ productId: string; title: string; category: string; price: number; totalQuantity: number; totalRevenue: number }> } = await gqlClient.request(GET_TOP_SELLING_PRODUCTS, { limit: 5 });
+            setTopProducts(data.getTopSellingProducts || []);
+          } catch (e) {
+            console.error("Error fetching top products:", e);
+          } finally {
+            setTopProductsLoading(false);
+          }
+        }
+        fetchTopProducts();
+      }, []);
+     
+    return {sales, salesLoading, categorySales, categorySalesLoading, topProducts, topProductsLoading };
 
 }

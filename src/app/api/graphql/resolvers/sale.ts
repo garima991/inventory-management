@@ -123,3 +123,46 @@ export const getSalesByCategory = async (_: any, __: any, context: any) => {
     return [];
   }
 };
+
+export const getTopSellingProducts = async (_: any, args: { limit?: number }, context: any) => {
+  const { user } = context;
+  if (!user) throw new Error("Unauthorized");
+
+  const limit = Math.max(1, Math.min(20, args.limit ?? 5));
+
+  try {
+    const salesWithProducts = await prismaClient.sale.findMany({
+      where: {
+        product: { tenantId: user.tenantId },
+      },
+      include: { product: true },
+    });
+
+    const productTotals: Record<string, { title: string; category: string; price: number; totalQuantity: number; totalRevenue: number }> = {};
+
+    for (const s of salesWithProducts) {
+      const productId = s.productId;
+      const title = String(s.product?.title ?? "Unknown");
+      const category = String(s.product?.category ?? "OTHERS");
+      const price = Number(s.product?.price ?? 0);
+      const quantity = Number(s.quantity ?? 0);
+
+      if (!productTotals[productId]) {
+        productTotals[productId] = { title, category, price, totalQuantity: 0, totalRevenue: 0 };
+      }
+
+      productTotals[productId].totalQuantity += quantity;
+      productTotals[productId].totalRevenue += quantity * price;
+    }
+
+    const sorted = Object.entries(productTotals)
+      .map(([productId, data]) => ({ productId, ...data }))
+      .sort((a, b) => b.totalQuantity - a.totalQuantity)
+      .slice(0, limit);
+
+    return sorted;
+  } catch (error) {
+    console.error("Error aggregating top selling products:", error);
+    return [];
+  }
+};

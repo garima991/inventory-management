@@ -1,6 +1,6 @@
 "use client";
-import { useSales } from "@/hooks/useSales";
 import React, { useMemo } from "react";
+import { useSales } from "@/hooks/useSales";
 import {
   BarChart,
   Bar,
@@ -9,41 +9,48 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from "recharts";
-import { ThemeContext } from "@/contexts/ThemeContextProvider";
 
+const TopProductsChart = () => {
+  const { topProducts, topProductsLoading } = useSales();
 
-const SalesByCategoryChart = () => {
-  const { categorySales, categorySalesLoading } = useSales();
-
-  const colors = {
+ const colors = {
     grid: "var(--chart-grid, #e5e7eb)",
     axis: "var(--chart-axis, #64748b)",
     tooltipBg: "var(--chart-tooltip-bg, #ffffff)",
     tooltipText: "var(--chart-tooltip-text, #0f172a)",
     tooltipBorder: "var(--chart-axis, #64748b)",
-    legendText: "var(--chart-axis, #64748b)",
-    bar: "var(--chart-series-1, #6366f1)",
+    bar: "var(--chart-series-3, #22c55e)",
   };
 
-  const axisTick = useMemo(() => ({ fill: colors.axis, fontSize: 12 }), [colors.axis]);
-  return (
+  const truncateLabel = (value: string, maxLength: number = 40) => {
+    if (typeof value !== "string") return value;
+    return value.length > maxLength ? `${value.slice(0, maxLength - 1)}…` : value;
+  };
 
+  return (
     <div className="rounded-xl border border-white/10 p-5">
-      <h2 className="text-lg font-semibold mb-4">Sales by Category</h2>
+      <h2 className="text-lg font-semibold mb-4">Top Selling Products</h2>
       <div className="w-full h-72">
-        {categorySalesLoading || categorySales.length === 0 ? (
+        {topProductsLoading || topProducts.length === 0 ? (
           <div className="h-full w-full rounded-lg bg-white/10 animate-pulse" />
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
-              data={categorySales}
+              data={topProducts}
+              layout="vertical"
               margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
-              <XAxis dataKey="category" stroke={colors.axis} tick={axisTick} />
-              <YAxis stroke={colors.axis} tick={axisTick} />
+              <XAxis type="number" stroke={colors.axis} tick={{ fill: colors.axis, fontSize: 12 }} />
+              <YAxis
+                type="category"
+                dataKey="title"
+                width={160}
+                stroke={colors.axis}
+                tick={{ fill: colors.axis, fontSize: 12 }}
+                tickFormatter={(v: any) => truncateLabel(String(v))}
+              />
               <Tooltip
                 contentStyle={{
                   backgroundColor: colors.tooltipBg,
@@ -53,22 +60,12 @@ const SalesByCategoryChart = () => {
                   padding: "8px 12px",
                   margin: "2px 10px",
                   fontSize: "12px",
+                  maxWidth: "200px"
                 }}
-                itemStyle={{ color: colors.bar }}
-                labelStyle={{ color: colors.axis, fontSize: "12px", textWrap: "wrap" }}
+                itemStyle={{ color: colors.axis}}
+                labelStyle={{ color: colors.axis, textWrap: "wrap"}}
               />
-              <Legend
-                wrapperStyle={{
-                  color: colors.legendText,
-                  fontSize: "12px",
-                }}
-              />
-              <Bar
-                dataKey="totalQuantity"
-                name="Quantity"
-                fill={colors.bar}
-                radius={[6, 6, 0, 0]}
-              />
+              <Bar dataKey="totalQuantity" name="Quantity" fill={colors.bar} radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}
@@ -77,4 +74,4 @@ const SalesByCategoryChart = () => {
   );
 };
 
-export default SalesByCategoryChart;
+export default TopProductsChart;

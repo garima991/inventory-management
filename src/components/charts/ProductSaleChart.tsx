@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -9,63 +10,56 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { Card, Flex, Text } from "@radix-ui/themes";
+import { Card } from "@radix-ui/themes";
 
 interface ProductSaleChartProps {
   data: { date: string; quantity: number }[];
 }
 
 export default function ProductSaleChart({ data }: ProductSaleChartProps) {
-  return (
-    <Card
-      className="rounded-xl border border-white/40 p-4"
-      size="3"
-    >
-     
+ const colors = {
+    axis: "var(--muted, #64748b)",
+    grid: "var(--border, #e5e7eb)",
+    line: "var(--accent, #6366f1)",
+    dotFill: "var(--accent-fill, #6366f1)",
+    dotStroke: "var(--surface, #ffffff)",
+    tooltipBg: "var(--surface-2, #ffffff)",
+    tooltipText: "var(--text, #0f172a)",
+    tooltipBorder: "var(--accent, #6366f1)",
+  };
 
+  const axisTick = useMemo(() => ({ fill: colors.axis, fontSize: 12 }), [colors.axis]);
+
+  return (
+    <Card className="rounded-xl border border-default p-4 bg-surface" size="3">
       <div className="w-full h-[450px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
-    
-            <CartesianGrid strokeDasharray="3 3" stroke="gray" />
+            <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
 
-            <XAxis
-              dataKey="date"
-              stroke="#cbd5e1"
-              tick={{ fill: "#cbd5e1", fontSize: 12 }}
-              axisLine={{ stroke: "#334155" }}
-            />
+            <XAxis dataKey="date" stroke={colors.axis} tick={axisTick} axisLine={{ stroke: colors.axis }} />
 
-            <YAxis
-              stroke="#cbd5e1"
-              tick={{ fill: "#cbd5e1", fontSize: 12 }}
-              axisLine={{ stroke: "#334155" }}
-            />
+            <YAxis stroke={colors.axis} tick={axisTick} axisLine={{ stroke: colors.axis }} />
 
             <Tooltip
               contentStyle={{
-                backgroundColor: "#0f172a",
+                backgroundColor: colors.tooltipBg,
                 borderRadius: "8px",
                 padding: "10px",
-                border: "1px solid #3b82f6", 
-                color: "#f1f5f9",
+                border: `1px solid ${colors.tooltipBorder}`,
+                color: colors.tooltipText,
               }}
-              itemStyle={{
-                color: "#22d3ee", 
-              }}
-              labelStyle={{
-                color: "#3b82f6", 
-              }}
+              itemStyle={{ color: colors.line }}
+              labelStyle={{ color: colors.line }}
             />
 
-           
             <Line
               type="monotone"
               dataKey="quantity"
-              stroke="#22d3ee"
+              stroke={colors.line}
               strokeWidth={3}
-              dot={{ fill: "blue", stroke: "#0f172a", r: 3 }}
-              activeDot={{ r: 5, fill: "#3b82f6", stroke: "#22d3ee" }}
+              dot={{ fill: colors.dotFill, stroke: colors.dotStroke, r: 4 }}
+              activeDot={{ r: 5, fill: colors.line, stroke: colors.dotStroke }}
             />
           </LineChart>
         </ResponsiveContainer>

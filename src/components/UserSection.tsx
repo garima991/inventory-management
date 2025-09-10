@@ -27,9 +27,9 @@ const UsersSection = () => {
   });
 
   return (
-    <div className="rounded-xl border border-white/10 p-5">
+    <div className="rounded-xl border border-default p-5 bg-surface text-default">
       <div className="flex flex-col gap-3 mb-4">
-        <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
+        <div className="flex items-center justify-between gap-3 border-b border-default pb-2">
           <h2 className="text-lg font-semibold">User Management</h2>
           <CreateUserButton
             mode = "create"
@@ -43,14 +43,14 @@ const UsersSection = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search users..."
-          className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm"
+          className="w-full rounded-lg bg-surface-2 border border-default px-3 py-2 text-sm text-default"
         />
       </div>
 
       {loading ? (
         <div className="flex flex-col gap-3">
           {Array.from({ length: 4 }).map((_, idx) => (
-            <div key={idx} className="h-14 rounded-lg bg-white/10 animate-pulse" />
+            <div key={idx} className="h-14 rounded-lg bg-surface-2 animate-pulse border border-default" />
           ))}
         </div>
       ) : filtered.length > 0 ? (
