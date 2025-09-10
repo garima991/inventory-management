@@ -217,21 +217,6 @@ const LandingPage = () => {
           </div>
         </section>
 
-        <section className="py-16">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <div className="flex flex-col items-center gap-8">
-              <p className="text-sm uppercase tracking-widest text-muted">Powered by</p>
-              <div className="flex flex-wrap items-center justify-center gap-8 opacity-80">
-                <img src="/next.svg" alt="Next.js" className="h-8" />
-                <img src="/vercel.svg" alt="Vercel" className="h-8" />
-                <img src="/globe.svg" alt="GraphQL" className="h-8" />
-                <img src="/file.svg" alt="Prisma" className="h-8" />
-                <img src="/window.svg" alt="Radix UI" className="h-8" />
-              </div>
-            </div>
-          </div>
-        </section>
-
         <section className="py-20 bg-surface">
           <div className="mx-auto max-w-3xl text-center px-6 lg:px-8">
             <h3 className="text-3xl font-bold text-default">Ready to get started?</h3>
